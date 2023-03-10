@@ -17,7 +17,7 @@ The main purpose of this repository is to provide all of the code used to analys
 
 
 ## Nextflow pipelines
-- [01-trim-illumina-reads](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/docs/01-trim-illumina-reads.md)
+- [Trim Illumina paired-end reads](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/docs/01-trim-illumina-reads.md)
 
 
 
