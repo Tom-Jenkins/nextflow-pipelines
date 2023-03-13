@@ -18,6 +18,20 @@ log.info """\
          """
          .stripIndent()
 
+// Define workflow
+workflow {
+
+    // Import reads
+    reads_ch = Channel
+        .fromFilePairs(["${params.reads}/*_R{1,2}_001.fastq.gz", "${params.sra}/*_{1,2}.fastq.gz"], checkIfExists: false)
+        .ifEmpty { error "No paired reads matching the pattern `*_R{1,2}_001.fastq.gz` or `*_{1,2}.fastq.gz` at ${params.reads}" }
+        // .view()
+
+    // Trim reads
+    FASTP(reads_ch)
+}
+
+
 // FASTP
 process FASTP {
 
@@ -44,24 +58,11 @@ process FASTP {
     -I ${reads[1]} \
     -o ${sample_id.replaceAll(/10628_/, "").replaceAll(/_S[0-9]*/, "")}_trim_R1.fq.gz \
     -O ${sample_id.replaceAll(/10628_/, "").replaceAll(/_S[0-9]*/, "")}_trim_R2.fq.gz \
-    --cut_tail \
-    --cut_tail_window_size 4 \
-    --cut_tail_mean_quality 22 \
-    --detect_adapter_for_pe \
+    --qualified_quality_phred 20 \
     --trim_poly_g \
     --length_required 75 \
-    --dont_eval_duplication \
     --thread ${task.cpus}
     """
 }
 
-// Define workflow
-workflow {
 
-    reads_ch = Channel
-        .fromFilePairs(["${params.reads}/*_R{1,2}_001.fastq.gz", "${params.sra}/*_{1,2}.fastq.gz"], checkIfExists: false)
-        .ifEmpty { error "No paired reads matching the pattern `*_R{1,2}_001.fastq.gz` or `*_{1,2}.fastq.gz` at ${params.reads}" }
-        // .view()
-
-    FASTP(reads_ch)
-}
