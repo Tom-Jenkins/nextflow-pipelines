@@ -21,9 +21,37 @@ log.info """\
 
 
 // Define workflow
+workflow {
 
+    // Import Nanopore reads
+    reads_ch = Channel
+        .fromPath("${params.reads}/*fastq.gz", checkIfExists: false)
+        .ifEmpty { error "No reads matching the pattern `*fastq.gz`" }
+        .view()
 
+    // Detect and remove adapters using Porechop v0.2.4
+    // porechop_ch = PORECHOP(reads_ch)
+}
 
+// PORECHOP
+process PORECHOP {
+
+    // Directives
+    cpus params.cpus
+    errorStrategy "ignore"
+
+    input:
+    tuple val(sample_id), path(reads)
+
+    output:
+    tuple val(sample_id), path("*.fq.gz")
+
+    script:
+    """
+    porechop -i ${reads} -o ${sample_id}/.fq -t ${params.cpus}
+    gzip ${sample_id}/.fq
+    """
+}
 
 
 
