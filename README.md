@@ -1,4 +1,4 @@
-# Maerl Whole Genome Sequencing Pipelines And Analysis
+# Maerl whole genome sequencing pipelines and nalysis
 
 > Note: this repo will be continually updated as the project advances. 
 
@@ -18,6 +18,7 @@ The main purpose of this repository is to provide all of the code used to analys
 
 ## Nextflow pipelines
 - [Trim Illumina paired-end reads](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/docs/01-trim-illumina-reads.md)
+- [Organelle genome assembly and annotation](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/docs/02-organelle-assembly-annotation.md)
 
 
 
