@@ -11,14 +11,14 @@ fastq-dl --outdir sra_reads/ --cpus 4 --provider SRA --accession PRJNA682082
 
 **Example input:**
 ```
-$ ls raw_reads
+$ ls raw_reads/
 ```
 ```
 10628_Sample_ID_S3_R1_001.fastq.gz 10628_Sample_ID_S40_R1_001.fastq.gz
 10628_Sample_ID_S3_R2_001.fastq.gz 10628_Sample_ID_S40_R2_001.fastq.gz
 ```
 ```
-$ ls sra_reads
+$ ls sra_reads/
 ```
 ```
 SRR13356831_1.fastq.gz SRR13356832_1.fastq.gz
@@ -35,7 +35,7 @@ mamba create -n fastp -c bioconda fastp=0.23.2
 # Print env paths on system
 mamba env list
 ```
-Second, edit path to the fastp conda environment in the `fastp.nf` script (line 27).
+Second, edit path to the fastp conda environment in the `fastp.nf` script (line 41).
 ```
 conda "/path/to/mambaforge3/envs/fastp"
 ```
@@ -43,7 +43,11 @@ conda "/path/to/mambaforge3/envs/fastp"
 ## 2. Run fastp nextflow script
 
 ```
-nextflow run ./src/fastp.nf --cpus 16 --reads /path/to/raw_reads/ --sra /path/to/sra_reads/ --outdir /path/to/output_dir/
+nextflow run ./src/fastp.nf \
+    --cpus 16 \
+    --reads /path/to/raw_reads/ \
+    --sra /path/to/sra_reads/ \
+    --outdir /path/to/output_dir/
 ```
 | Parameter | Description
 | :- | :-
@@ -58,7 +62,7 @@ The output of `fastp.nf` is a directory called `trimmed_reads/` that is automati
 
 **Example output:**
 ```
-$ ls trimmed_reads
+$ ls trimmed_reads/
 ```
 ```
 SampleID1_trim.R1.fq.gz SampleID2_trim.R1.fq.gz
