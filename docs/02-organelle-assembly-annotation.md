@@ -1,4 +1,4 @@
-# Organelle genome assembly and annotation
+# Organelle assembly and annotation
 
 The [`organelle.nf`](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/src/fastp.nf) nextflow script will take any number of trimmed reads in the following format: `*_trim_R{1,2}.fq.gz`. The outputs of this pipeline are an annotated mitochondrial and chloroplast genome. If part of the pipeline is unsuccessful for a sample then these errors are ignored and no assembly or annotation files will be outputted for that sample.
 
@@ -6,15 +6,15 @@ Pipeline flowchart:
 
 ```mermaid
 graph TD;
-    FASTQ-->|bwa-mem2| m1[Align to Mitochondrial Seeds];
-    FASTQ-->|bwa-mem2| c1[Align to Chloroplast Seeds];
+    FASTQ-->|Bwa-mem2| m1[Align to Mitochondrial Seeds];
+    FASTQ-->|Bwa-mem2| c1[Align to Chloroplast Seeds];
     subgraph I 
-        c1-->|unicycler| c2[Assemble Plastome];
-        c2-->|plastid genome annotator| c3[Annotate Plastome];
+        c1-->|Unicycler| c2[Assemble Plastome];
+        c2-->|Plastid Genome Annotator| c3[Annotate Plastome];
     end
     subgraph I 
-        m1-->|unicycler| m2[Assemble Mitogenome];
-        m2-->|mitofinder| m3[Annotate Mitogenome];
+        m1-->|Unicycler| m2[Assemble Mitogenome];
+        m2-->|Mitofinder| m3[Annotate Mitogenome];
     end
 ```
 
@@ -31,7 +31,7 @@ Sample_ID_trim_R2.fq.gz SRR13356911_trim_R2.fq.gz
 
 ### 1.1 Install Unicycler
 
-First, create a conda environment for [unicycler](https://github.com/rrwick/Unicycler) v0.5.0.
+First, create a conda environment for [Unicycler](https://github.com/rrwick/Unicycler) v0.5.0.
 ```
 # Create conda env
 mamba create -n unicycler -c bioconda unicycler=0.5.0
@@ -46,8 +46,8 @@ conda "/path/to/mambaforge3/envs/unicycler"
 
 ### 1.2 Install dependencies (version used)
 
-* [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2) (2.0pre2)
-* [samtools](https://github.com/samtools/samtools) (1.16.1)
+* [Bwa-mem2](https://github.com/bwa-mem2/bwa-mem2) (2.0pre2)
+* [Samtools](https://github.com/samtools/samtools) (1.16.1)
 * [Mitofinder](https://github.com/RemiAllio/MitoFinder) (1.4.1)
 * [PGA](https://github.com/quxiaojian/PGA) (plastid genome annotator)
 * [gbseqextractor](https://github.com/linzhi2013/gbseqextractor)

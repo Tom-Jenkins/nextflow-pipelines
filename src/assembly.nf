@@ -215,7 +215,6 @@ process MAP_READS {
     output:
     path("polished.sorted.bam")
     path("polished.sorted.bam.stats")
-    path("polished.sorted.bam.*")
 
     // Align Nanopore reads using minimap2
     // Filter alignments using samtools
@@ -234,7 +233,5 @@ process MAP_READS {
     rm polished.sam polished.bam
 
     samtools flagstat -@ ${params.cpus} polished.sorted.bam > polished.sorted.bam.stats
-
-    samtools index -@ ${params.cpus} polished.sorted.bam
     """
 }
