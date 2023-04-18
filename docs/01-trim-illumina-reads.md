@@ -35,7 +35,7 @@ mamba create -n fastp -c bioconda fastp=0.23.2
 # Print env paths on system
 mamba env list
 ```
-Second, edit path to the fastp conda environment in the `fastp.nf` script (line 27).
+Second, edit path to the fastp conda environment in the `fastp.nf` script (line 41).
 ```
 conda "/path/to/mambaforge3/envs/fastp"
 ```
