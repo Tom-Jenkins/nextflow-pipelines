@@ -1,4 +1,4 @@
-# Maerl whole genome sequencing pipelines and nalysis
+# Maerl whole genome sequencing pipelines and analysis
 
 > Note: this repo will be continually updated as the project advances. 
 
