@@ -59,20 +59,23 @@ conda "/path/to/mambaforge3/envs/unicycler"
 
 ### 2.1 Download seeds
 
-`efetch -db nucleotide -id MW357900.2,MW357901.2,MH281621.1 -format fasta > maerl-mitochondrion-seeds.fa`
+```
+efetch -db nucleotide -id MW357900.2,MW357901.2,MH281621.1 -format fasta > maerl-mitochondrion-seeds.fa
 
-`efetch -db nucleotide -id OQ417768.1,OQ417769.1,MH281627.1 -format fasta > maerl-chloroplast-seeds.fa`
+efetch -db nucleotide -id OQ417768.1,OQ417769.1,MH281627.1 -format fasta > maerl-chloroplast-seeds.fa
+```
 
 ### 2.2 Download GenBank references
 
-`efetch -db nucleotide -id MW357900.2 -format gb > MW357900-mitochondrion-reference.gb`
+```
+efetch -db nucleotide -id MW357900.2 -format gb > MW357900-mitochondrion-reference.gb
 
-`efetch -db nucleotide -id OQ417768.1 -format gb > chloroplast_references/OQ417768-chloroplast-reference.gb`
+efetch -db nucleotide -id OQ417768.1 -format gb > chloroplast_references/OQ417768-chloroplast-reference.gb
 
-`efetch -db nucleotide -id OQ417769.1 -format gb > chloroplast_references/OQ417769-chloroplast-reference.gb`
+efetch -db nucleotide -id OQ417769.1 -format gb > chloroplast_references/OQ417769-chloroplast-reference.gb
 
-`efetch -db nucleotide -id MH281627.1 -format gb > chloroplast_references/MH281627-chloroplast-reference.gb`
-
+efetch -db nucleotide -id MH281627.1 -format gb > chloroplast_references/MH281627-chloroplast-reference.gb
+```
 
 ## 3. Run organelle nextflow script
 
