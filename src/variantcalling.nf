@@ -3,7 +3,7 @@
 nextflow.enable.dsl=2
 
 // Parameters
-params.illumina_reads = "${PWD}"
+params.reads = "${PWD}"
 params.ref_genome = "${PWD}"
 params.outdir = "${PWD}"
 params.cpus = 16
@@ -12,8 +12,8 @@ params.cpus = 16
 log.info """\
          V A R I A N T - C A L L I N G - N F   P I P E L I N E
          ===================================
-         Input Illumina directory: ${params.illumina_reads}
-         Input reference genome: ${params.nano_reads}
+         Input reads directory: ${params.reads}
+         Input reference genome: ${params.ref_genome}
          Output directory: ${params.outdir}
          Number of threads: ${params.cpus}
          """
@@ -21,5 +21,19 @@ log.info """\
 
 
 // Define workflow
+workflow {
 
+    // Import reads
+    reads_ch = Channel
+        .fromFilePairs("${params.reads}/*_trim_R{1,2}.fq.gz", checkIfExists: false)
+        .ifEmpty { error "No paired reads matching the pattern `*_trim_R{1,2}.fq.gz`"}
+        .view()
+
+    // Align reads to reference genome
+
+
+    // See Bioinformatics Workbook Example for intermediate steps
+
+    // Call variants using Freebayes
+}
 
