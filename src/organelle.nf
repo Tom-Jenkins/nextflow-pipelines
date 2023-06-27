@@ -65,8 +65,8 @@ process ALIGN_TO_MITOGENOME_SEEDS {
     """
     bwa-mem2 index ${params.mito_seed}
     bwa-mem2 mem -t ${params.cpus} -o out.sam ${params.mito_seed} ${reads[0]} ${reads[1]}
-    samtools view -F 4 -t ${params.cpus} -b out.sam > out.bam
-    samtools sort -n -t ${params.cpus} out.bam > out.sorted.bam
+    samtools view -F 4 -@ ${params.cpus} -b out.sam > out.bam
+    samtools sort -n -@ ${params.cpus} out.bam > out.sorted.bam
     rm out.sam out.bam
     samtools fastq -1 ${sample_id}_1.fq -2 ${sample_id}_2.fq -s ${sample_id}_unpaired.fq out.sorted.bam
     """
@@ -153,8 +153,8 @@ process ALIGN_TO_PLASTOME_SEEDS {
     """
     bwa-mem2 index ${params.plastid_seed}
     bwa-mem2 mem -t ${params.cpus} -o out.sam ${params.plastid_seed} ${reads[0]} ${reads[1]}
-    samtools view -F 4 -t ${params.cpus} -b out.sam > out.bam
-    samtools sort -n -t ${params.cpus} out.bam > out.sorted.bam
+    samtools view -F 4 -@ ${params.cpus} -b out.sam > out.bam
+    samtools sort -n -@ ${params.cpus} out.bam > out.sorted.bam
     rm out.sam out.bam
     samtools fastq -1 ${sample_id}_1.fq -2 ${sample_id}_2.fq -s ${sample_id}_unpaired.fq out.sorted.bam
     """
