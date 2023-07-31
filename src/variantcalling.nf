@@ -32,12 +32,9 @@ workflow {
     // Align reads to reference genome
     bam_ch = ALIGN_TO_REF_GENOME(reads_ch)
 
-    // Process bam files and pipe the output to Freebayes
+    // Process bam files and pipe the output to bcftools v1.17
     bam_ch | PROCESS_BAM | collect | CALL_VARIANTS
     
-    // processed_bam_ch = PROCESS_BAM(bam_ch)
-    // Call variants using Freebayes
-    // CALL_VARIANTS(processed_bam_ch)
 }
 
 
@@ -45,6 +42,7 @@ process ALIGN_TO_REF_GENOME {
 
     // Directives
     cpus params.cpus
+    errorStrategy "ignore"
 
     // [sample_ID, [sample_ID_trim.R1.fq.gz, sample_ID_trim.R2.fq.gz]]
     input:
@@ -70,7 +68,8 @@ process PROCESS_BAM {
 
     // Directives
     cpus params.cpus
-    // publishDir "${params.outdir}/processed_bams", mode: "copy"
+    errorStrategy "ignore"
+    publishDir "${params.outdir}/processed_bams", mode: "copy"
 
     // [sample_ID, [sample_ID.bam]]
     input:
@@ -104,6 +103,7 @@ process PROCESS_BAM {
         RGPU=unit1 \
         RGSM=${sample_id}
 
+    rm ${sample_id}-sorted.bam ${sample_id}-sorted-md.bam
     samtools index ${sample_id}-sorted-md-rg.bam
     """
 }
@@ -113,24 +113,42 @@ process CALL_VARIANTS {
     // Directives
     cpus params.cpus
     publishDir "${params.outdir}", mode: "copy"
+    conda "/lustre/home/tj311/software/mambaforge3/envs/freebayes"
 
     input:
     path(bam)
 
     output:
-    path("freebayes_unfiltered.vcf")
+    path("bcftools.vcf")
 
+    // Freebayes v1.3.6 ran for too long (even in parallel mode)
     // freebayes \
     //     --fasta-reference ${params.ref_genome} \
     //     --bam ${bam} \
     //     --ploidy 2 \
     //     --vcf freebayes_unfiltered.vcf
+
+    // Run bcftools mpileup
+    // Run bcftools call
     script:
     """
-    ~/software/freebayes/scripts/freebayes-parallel \
-        <(~/software/freebayes/scripts/fasta_generate_regions.py ${params.ref_genome}.fai 100000) ${params.cpus} \
-        --fasta-reference ${params.ref_genome} \
+    bcftools mpileup \
+        --threads ${params.cpus} \
+        --fasta-ref ${params.ref_genome} \
+        --min-MQ 20 \
+        --min-BQ 30 \
+        --annotate FORMAT/AD,FORMAT/DP,INFO/AD \
+        --output bcftools.pileup \
+        --output-type z \
+        ${bam}
+    
+    bcftools call \
+        --threads ${params.cpus} \
+        --multiallelic-caller \
+        --variants-only \
         --ploidy 2 \
-        --bam ${bam} > freebayes_unfiltered.vcf
+        --output-type v \
+        --output bcftools.vcf \
+        bcftools.pileup
     """
 }
