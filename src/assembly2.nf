@@ -5,7 +5,6 @@ nextflow.enable.dsl=2
 // Parameters
 params.nano_reads = "${PWD}"
 params.illumina_reads = "${PWD}"
-params.pcalcareumREF = "${PWD}"
 params.outdir = "${PWD}"
 params.cpus = 16
 
@@ -16,7 +15,6 @@ log.info """\
          Input Nanopore directory: ${params.nano_reads}
          Input Illumina directory: ${params.illumina_reads}
          Output directory: ${params.outdir}
-         Phymatolithon calcareum reference: ${params.pcalcareumREF}
          Number of threads: ${params.cpus}
          """
          .stripIndent()
@@ -36,13 +34,8 @@ workflow {
     // Detect and remove adapters using Porechop v0.2.4
     porechop_ch = PORECHOP(nanopore_reads_ch)
 
-    // Enrich for reads belonging to maerl species
-    // i. Align reads to P. calcareum reference (Mor02) (Jenkins et al. 2021)
-    // ii. Export mapped reads to new FASTQ file
-    enrich_ch = ALIGN_TO_MAERL_REF(porechop_ch)
-
-    // Assemble enriched maerl reads Using Flye
-    flye_ch = FLYE(enrich_ch)
+    // Assemble reads using Flye
+    flye_ch = FLYE(porechop_ch)
 
     // Correct assembly using Medaka (Nanopore reads)
     medaka_ch = MEDAKA(flye_ch)
@@ -50,7 +43,7 @@ workflow {
     // Polish assembly using Polypolish (Illumina reads)
     polypolish_ch = POLYPOLISH(medaka_ch)
 
-    // Map Nanopore reads (used to build assembly) to assembly
+    // Map Nanopore reads (used to build assembly) to assembly (output from Porechop)
     MAP_READS(polypolish_ch)
 }
 
@@ -60,54 +53,24 @@ process PORECHOP {
     // Directives
     cpus params.cpus
     // errorStrategy "ignore"
+    publishDir "${params.outdir}/${sample_id}", mode: "copy", pattern: "*.fq.gz"
     conda "/lustre/home/tj311/software/mambaforge3/envs/porechop"
-
+    
     input:
     tuple val(sample_id), path(reads)
 
     output:
-    tuple val(sample_id), path("*.fq.gz")
+    tuple val(sample_id), path("*_1000.fq.gz")
 
     script:
     """
     porechop -i ${reads} -o ${sample_id}.fq -t ${params.cpus}
     gzip ${sample_id}.fq
-    """
-}
-
-// ENRICHMENT
-process ALIGN_TO_MAERL_REF {
-
-    // Directives
-    cpus params.cpus
-    // errorStrategy "ignore"
-    publishDir "${params.outdir}/${sample_id}", mode: "copy", pattern: "*.fq"
-
-    input:
-    tuple val(sample_id), path(reads)
-
-    output:
-    tuple val(sample_id), path("*.fq"), optional: true
-
-    // Align Nanopore reads to P. calcareum reference using minimap2
-    // Convert to BAM and sort
-    // Convert BAM to FASTQ |
-    // remove unmapped reads (-F 4) |
-    // remove duplicate sequences (seqkit rmdup -s) |
-    // make sequence names unique (seqkit rename -n)
-    script:
-    """
-    minimap2 -t ${params.cpus} -o enrich_${sample_id}.sam -ax map-ont ${params.pcalcareumREF} ${reads}
-
-    samtools view -@ ${params.cpus} -b enrich_${sample_id}.sam > enrich_${sample_id}.bam
-
-    samtools sort -@ ${params.cpus} enrich_${sample_id}.bam > enrich_${sample_id}.sort.bam
- 
-    rm enrich_${sample_id}.sam enrich_${sample_id}.bam
-    
-    samtools flagstat -@ ${params.cpus} enrich_${sample_id}.sort.bam > enrich_${sample_id}.sort.bam.stats
-
-    samtools fastq -@ ${params.cpus} -F 4 enrich_${sample_id}.sort.bam | seqkit rmdup -s -j ${params.cpus}  | seqkit rename -n -j ${params.cpus} > enrich_${sample_id}.fq
+    seqkit seq \
+        --threads ${params.cpus} \
+        --min-len 1000 \
+        ${sample_id}.fq.gz \
+        -o ${sample_id}_1000.fq.gz
     """
 }
 
@@ -120,19 +83,24 @@ process FLYE {
     publishDir "${params.outdir}/${sample_id}", mode: "copy", pattern: "*"
 
     input:
-    tuple val(sample_id), path(target_reads)
+    tuple val(sample_id), path(reads)
 
     output:
-    tuple val(sample_id), path("assembly.fasta"), optional: true
+    tuple val(sample_id), path("${sample_id}_assembly.fasta")
 
     script:
     """
     flye \
-        --nano-raw ${target_reads} \
+        --nano-raw ${reads} \
         --out-dir . \
         --min-overlap 5000 \
         --no-alt-contigs \
         --threads ${params.cpus}
+    
+    seqkit seq \
+        --min-len 1000 \
+        --out-file ${sample_id}_assembly.fasta \
+        assembly.fasta
     """
 }
 
@@ -144,16 +112,18 @@ process MEDAKA {
     // errorStrategy "ignore"
     publishDir "${params.outdir}/${sample_id}", mode: "copy"
 
+    // 1. Flye assembly
+    // 2. Reads output from Porechop
     input:
     tuple val(sample_id), path(flye_assembly)
 
     output:
-    tuple val(sample_id), path("consensus.fasta"), optional: true
+    tuple val(sample_id), path("consensus.fasta")
 
     script:
     """
     medaka_consensus \
-        -i ${params.outdir}/${sample_id}/enrich_${sample_id}.fq \
+        -i ${params.outdir}/${sample_id}/${sample_id}_1000.fq.gz \
         -d ${flye_assembly} \
         -o . \
         -m r941_prom_sup_g507 \
@@ -173,7 +143,7 @@ process POLYPOLISH {
     tuple val(sample_id), path(medaka_assembly)
 
     output:
-    tuple val(sample_id), path("polished.fasta"), optional: true
+    tuple val(sample_id), path("polished.fasta")
 
     // Index assembly
     // Align Illumina reads to genome separately (required for polypolish)
@@ -221,7 +191,7 @@ process MAP_READS {
     path("polished.sorted.bam")
     path("polished.sorted.bam.stats")
 
-    // Align Nanopore reads using minimap2
+    // Align Porechop output reads using minimap2
     // Filter alignments using samtools
     // -F 2304: remove secondary and supplementary reads
     script:
@@ -229,7 +199,7 @@ process MAP_READS {
     minimap2 \
         -t ${params.cpus} \
         -o polished.sam \
-        -ax map-ont ${polished_assembly} ${params.outdir}/${sample_id}/enrich_${sample_id}.fq
+        -ax map-ont ${polished_assembly} ${params.outdir}/${sample_id}/${sample_id}_1000.fq.gz
 
     samtools view -@ ${params.cpus} -F 2304 -b polished.sam > polished.bam
 
