@@ -6,7 +6,6 @@ nextflow.enable.dsl=2
 params.nano_reads = "${PWD}"
 params.illumina_reads = "${PWD}"
 params.outdir = "${PWD}"
-params.min_read_length = 1000
 params.cpus = 16
 
 // Print parameters to the console
@@ -16,7 +15,6 @@ log.info """\
          Input Nanopore directory: ${params.nano_reads}
          Input Illumina directory: ${params.illumina_reads}
          Output directory: ${params.outdir}
-         Minimum read length: ${params.min_read_length}
          Number of threads: ${params.cpus}
          """
          .stripIndent()
@@ -27,10 +25,10 @@ workflow {
 
     // Import Nanopore reads and store sample ID in tuple
     nanopore_reads_ch = Channel
-        .fromPath("${params.nano_reads}/*.fp.bs.fq.gz", checkIfExists: false).map {
-            tuple ( it.name.split(".fp.bs.fq.gz")[0], it)
+        .fromPath("${params.nano_reads}/*.fastq.gz", checkIfExists: false).map {
+            tuple ( it.name.split(".fastq.gz")[0], it)
         }
-        .ifEmpty { error "No reads matching the pattern `*.fp.bs.fq.gz`" }
+        .ifEmpty { error "No reads matching the pattern `*.fastq.gz`" }
         // .view()
 
     // Detect and remove adapters using Porechop v0.2.4
@@ -39,8 +37,11 @@ workflow {
     // Assemble reads using Flye
     flye_ch = FLYE(porechop_ch)
 
+    // Correct assembly using Medaka (Nanopore reads)
+    medaka_ch = MEDAKA(flye_ch)
+
     // Polish assembly using Polypolish (Illumina reads)
-    polypolish_ch = POLYPOLISH(flye_ch)
+    polypolish_ch = POLYPOLISH(medaka_ch)
 
     // Map Nanopore reads (used to build assembly) to assembly (output from Porechop)
     MAP_READS(polypolish_ch)
@@ -52,15 +53,14 @@ process PORECHOP {
     // Directives
     cpus params.cpus
     // errorStrategy "ignore"
-    maxForks 1 // set maximum number of parallel tasks to 1
     publishDir "${params.outdir}/${sample_id}", mode: "copy", pattern: "*.fq.gz"
-    conda "/lustre/home/tj311/software/miniforge3/envs/porechop"
+    conda "/lustre/home/tj311/software/mambaforge3/envs/porechop"
     
     input:
     tuple val(sample_id), path(reads)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${params.min_read_length}.fq.gz")
+    tuple val(sample_id), path("*_1000.fq.gz")
 
     script:
     """
@@ -68,9 +68,9 @@ process PORECHOP {
     gzip ${sample_id}.fq
     seqkit seq \
         --threads ${params.cpus} \
-        --min-len ${params.min_read_length} \
-        -o ${sample_id}_${params.min_read_length}.fq.gz \
-        ${sample_id}.fq.gz        
+        --min-len 1000 \
+        ${sample_id}.fq.gz \
+        -o ${sample_id}_1000.fq.gz
     """
 }
 
@@ -80,7 +80,6 @@ process FLYE {
     // Directives
     cpus params.cpus
     // errorStrategy "ignore"
-    maxForks 1 // set maximum number of parallel tasks to 1
     publishDir "${params.outdir}/${sample_id}", mode: "copy", pattern: "*"
 
     input:
@@ -94,6 +93,7 @@ process FLYE {
     flye \
         --nano-raw ${reads} \
         --out-dir . \
+        --min-overlap 5000 \
         --no-alt-contigs \
         --threads ${params.cpus}
     
@@ -104,17 +104,43 @@ process FLYE {
     """
 }
 
+// MEDAKA
+process MEDAKA {
+
+    // Directives
+    cpus params.cpus
+    // errorStrategy "ignore"
+    publishDir "${params.outdir}/${sample_id}", mode: "copy"
+
+    // 1. Flye assembly
+    // 2. Reads output from Porechop
+    input:
+    tuple val(sample_id), path(flye_assembly)
+
+    output:
+    tuple val(sample_id), path("consensus.fasta")
+
+    script:
+    """
+    medaka_consensus \
+        -i ${params.outdir}/${sample_id}/${sample_id}_1000.fq.gz \
+        -d ${flye_assembly} \
+        -o . \
+        -m r941_prom_sup_g507 \
+        -t ${params.cpus}
+    """
+}
+
 // POLYPOLISH
 process POLYPOLISH {
 
     // Directives
     cpus params.cpus
     // errorStrategy "ignore"
-    maxForks 1 // set maximum number of parallel tasks to 1
     publishDir "${params.outdir}/${sample_id}", mode: "copy"
 
     input:
-    tuple val(sample_id), path(flye_assembly)
+    tuple val(sample_id), path(medaka_assembly)
 
     output:
     tuple val(sample_id), path("polished.fasta")
@@ -124,23 +150,29 @@ process POLYPOLISH {
     // Execute polypolish
     script:
     """
-    bwa-mem2 index ${flye_assembly}
+    bwa-mem2 index ${medaka_assembly}
 
     bwa-mem2 mem \
         -t ${params.cpus} \
-        -a ${flye_assembly} \
+        -a ${medaka_assembly} \
         ${params.illumina_reads}/${sample_id}_trim_R1.fq.gz > alignments_1.sam
     
     bwa-mem2 mem \
         -t ${params.cpus} \
-        -a ${flye_assembly} \
+        -a ${medaka_assembly} \
         ${params.illumina_reads}/${sample_id}_trim_R2.fq.gz > alignments_2.sam
+
+    polypolish_insert_filter.py \
+        --in1 alignments_1.sam \
+        --in2 alignments_2.sam \
+        --out1 filtered_1.sam \
+        --out2 filtered_2.sam
     
-    polypolish polish \
-        ${flye_assembly} \
-        alignments_1.sam \
-        alignments_2.sam | \
-        sed 's/ polypolish//' > polished.fasta
+    polypolish \
+        ${medaka_assembly} \
+        filtered_1.sam \
+        filtered_2.sam | \
+        sed 's/_polypolish//' > polished.fasta
     """
 }
 
@@ -150,7 +182,6 @@ process MAP_READS {
     // Directives
     cpus params.cpus
     // errorStrategy "ignore"
-    maxForks 1 // set maximum number of parallel tasks to 1
     publishDir "${params.outdir}/${sample_id}", mode: "copy"
 
     input:
@@ -168,7 +199,7 @@ process MAP_READS {
     minimap2 \
         -t ${params.cpus} \
         -o polished.sam \
-        -ax map-ont ${polished_assembly} ${params.outdir}/${sample_id}/"${sample_id}_${params.min_read_length}.fq.gz"
+        -ax map-ont ${polished_assembly} ${params.outdir}/${sample_id}/${sample_id}_1000.fq.gz
 
     samtools view -@ ${params.cpus} -F 2304 -b polished.sam > polished.bam
 

@@ -6,6 +6,7 @@ nextflow.enable.dsl=2
 params.reads = "${PWD}"
 params.sra = "${PWD}"
 params.outdir = "${PWD}"
+params.project_code = ""
 params.cpus = 16
 
 // Print parameters to the console
@@ -14,6 +15,7 @@ log.info """\
          ===================================
          Input directory: ${params.reads}
          Output directory: ${params.outdir}/trimmed_reads
+         Project code(s): ${params.project_code}
          Number of threads: ${params.cpus}
          """
          .stripIndent()
@@ -47,17 +49,18 @@ process FASTP {
     output:
     // Output file names in the format `sampleID_trim.fq.gz`
     // This code only gets executed for the files provided by the Sequencing Facility (it should not execute on SRA files)
-    // 1. Remove "10628_" (project ID) from file name
-    // 2. Remove "S[1 or more number(s)]" (plate ID) from file name
-    tuple val(sample_id), path("${sample_id.replaceAll(/10628_/, "").replaceAll(/_S[0-9]*/, "")}_trim_R*.fq.gz")
+    // 1. Remove project ID (e.g. "10628|11002") from file name
+    // 2. Remove any underscores that remain at the start of file name
+    // 3. Remove "S[1 or more number(s)]" (plate ID) from file name
+    tuple val(sample_id), path("${sample_id.replaceAll(/${params.project_code}_/, "").replaceFirst(/^_/, "").replaceAll(/_S[0-9]*/, "")}_trim_R*.fq.gz")
 
     script:
     """
     fastp \
     -i ${reads[0]} \
     -I ${reads[1]} \
-    -o ${sample_id.replaceAll(/10628_/, "").replaceAll(/_S[0-9]*/, "")}_trim_R1.fq.gz \
-    -O ${sample_id.replaceAll(/10628_/, "").replaceAll(/_S[0-9]*/, "")}_trim_R2.fq.gz \
+    -o ${sample_id.replaceAll(/${params.project_code}_/, "").replaceFirst(/^_/, "").replaceAll(/_S[0-9]*/, "")}_trim_R1.fq.gz \
+    -O ${sample_id.replaceAll(/${params.project_code}_/, "").replaceFirst(/^_/, "").replaceAll(/_S[0-9]*/, "")}_trim_R2.fq.gz \
     --qualified_quality_phred 20 \
     --trim_poly_g \
     --length_required 75 \
