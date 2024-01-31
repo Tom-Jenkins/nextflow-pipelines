@@ -113,7 +113,6 @@ process CALL_VARIANTS {
     // Directives
     cpus params.cpus
     publishDir "${params.outdir}", mode: "copy"
-    conda "/lustre/home/tj311/software/mambaforge3/envs/freebayes"
 
     input:
     path(bam)
