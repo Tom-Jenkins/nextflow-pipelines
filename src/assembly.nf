@@ -27,51 +27,20 @@ workflow {
 
     // Import Nanopore reads and store sample ID in tuple
     nanopore_reads_ch = Channel
-        .fromPath("${params.nano_reads}/*.fp.bs.fq.gz", checkIfExists: false).map {
-            tuple ( it.name.split(".fp.bs.fq.gz")[0], it)
+        .fromPath("${params.nano_reads}/*.pc.bs.fq.gz", checkIfExists: false).map {
+            tuple ( it.name.split(".pc.bs.fq.gz")[0], it)
         }
-        .ifEmpty { error "No reads matching the pattern `*.fp.bs.fq.gz`" }
+        .ifEmpty { error "No reads matching the pattern `*.pc.bs.fq.gz`" }
         // .view()
 
-    // Detect and remove adapters using Porechop v0.2.4
-    porechop_ch = PORECHOP(nanopore_reads_ch)
-
     // Assemble reads using Flye
-    flye_ch = FLYE(porechop_ch)
+    flye_ch = FLYE(nanopore_reads_ch)
 
     // Polish assembly using Polypolish (Illumina reads)
     polypolish_ch = POLYPOLISH(flye_ch)
 
-    // Map Nanopore reads (used to build assembly) to assembly (output from Porechop)
+    // Map Nanopore reads (used to build assembly) to assembly
     MAP_READS(polypolish_ch)
-}
-
-// PORECHOP
-process PORECHOP {
-
-    // Directives
-    cpus params.cpus
-    // errorStrategy "ignore"
-    maxForks 1 // set maximum number of parallel tasks to 1
-    publishDir "${params.outdir}/${sample_id}", mode: "copy", pattern: "*.fq.gz"
-    conda "/lustre/home/tj311/software/miniforge3/envs/porechop"
-    
-    input:
-    tuple val(sample_id), path(reads)
-
-    output:
-    tuple val(sample_id), path("${sample_id}_${params.min_read_length}.fq.gz")
-
-    script:
-    """
-    porechop -i ${reads} -o ${sample_id}.fq -t ${params.cpus}
-    gzip ${sample_id}.fq
-    seqkit seq \
-        --threads ${params.cpus} \
-        --min-len ${params.min_read_length} \
-        -o ${sample_id}_${params.min_read_length}.fq.gz \
-        ${sample_id}.fq.gz        
-    """
 }
 
 // FLYE ASSEMBLY
@@ -91,14 +60,21 @@ process FLYE {
 
     script:
     """
+    seqkit seq \
+        --threads ${params.cpus} \
+        --min-len ${params.min_read_length} \
+        --out-file reads.fq.gz \
+        ${reads}
+
     flye \
-        --nano-raw ${reads} \
+        --nano-raw reads.fq.gz \
         --out-dir . \
         --no-alt-contigs \
         --threads ${params.cpus}
     
     seqkit seq \
-        --min-len 1000 \
+        --threads ${params.cpus} \
+        --min-len ${params.min_read_length} \
         --out-file ${sample_id}_assembly.fasta \
         assembly.fasta
     """
@@ -120,7 +96,7 @@ process POLYPOLISH {
     tuple val(sample_id), path("polished.fasta")
 
     // Index assembly
-    // Align Illumina reads to genome separately (required for polypolish)
+    // Align Illumina paired reads to genome separately (required for polypolish)
     // Execute polypolish
     script:
     """
@@ -129,12 +105,12 @@ process POLYPOLISH {
     bwa-mem2 mem \
         -t ${params.cpus} \
         -a ${flye_assembly} \
-        ${params.illumina_reads}/${sample_id}_trim_R1.fq.gz > alignments_1.sam
+        ${params.illumina_reads}/${sample_id}_1.fp.fq.gz > alignments_1.sam
     
     bwa-mem2 mem \
         -t ${params.cpus} \
         -a ${flye_assembly} \
-        ${params.illumina_reads}/${sample_id}_trim_R2.fq.gz > alignments_2.sam
+        ${params.illumina_reads}/${sample_id}_2.fp.fq.gz > alignments_2.sam
     
     polypolish polish \
         ${flye_assembly} \
@@ -160,7 +136,7 @@ process MAP_READS {
     path("polished.sorted.bam")
     path("polished.sorted.bam.stats")
 
-    // Align Porechop output reads using minimap2
+    // Align Nanopore reads using minimap2
     // Filter alignments using samtools
     // -F 2304: remove secondary and supplementary reads
     script:
@@ -168,7 +144,7 @@ process MAP_READS {
     minimap2 \
         -t ${params.cpus} \
         -o polished.sam \
-        -ax map-ont ${polished_assembly} ${params.outdir}/${sample_id}/"${sample_id}_${params.min_read_length}.fq.gz"
+        -ax map-ont ${polished_assembly} ${params.nano_reads}/"${sample_id}.pc.bs.fq.gz"
 
     samtools view -@ ${params.cpus} -F 2304 -b polished.sam > polished.bam
 
