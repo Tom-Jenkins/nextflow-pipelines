@@ -1,6 +1,8 @@
-# Trim Illumina paired-end reads
+# Trim Illumina Paired-End Reads
 
-The [`fastp.nf`](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/src/fastp.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format and output trimmed reads using [fastp](https://github.com/OpenGene/fastp). The names of the files sent by the Sequencing Facility were in the following format: `10628_Sample_ID_PlateID_R1_001.fastq.gz`. Therefore, the `fastp.nf` script recognises this pattern (`*_R{1,2}_001.fastq.gz`) for each sample pair and during processing removes the project ID `10628_` from the beginning and the plate ID (e.g. `S72`) from the middle of each sample name. This script also optionally accepts reads downloaded from the Sequence Read Archive (SRA). If you want to adapt this script to suit your own file formats, edit both the pattern recognition and the project/plate ID code segments.
+The [`fastp.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/fastp.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format and output trimmed reads using [fastp](https://github.com/OpenGene/fastp). 
+
+The names of the files sent by the Sequencing Facility were in the following format: `10628_Sample_ID_PlateID_R1_001.fastq.gz`. Therefore, the `fastp.nf` script recognises this pattern (`*_R{1,2}_001.fastq.gz`) for each sample pair and during processing removes the project ID `10628_` from the beginning and the plate ID (e.g. `S72`) from the middle of each sample name. This script also optionally accepts reads downloaded from the Sequence Read Archive (SRA). If you want to adapt this script to suit your own file formats, edit both the pattern recognition and the project/plate ID code segments.
 
 **Download SRA reads for Project [PRJNA682082](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA682082)**
 ```
