@@ -2,72 +2,77 @@
 
 The [`fastp.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/fastp.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format and output trimmed reads using [fastp](https://github.com/OpenGene/fastp). 
 
-The names of the files sent by the Sequencing Facility were in the following format: `10628_Sample_ID_PlateID_R1_001.fastq.gz`. Therefore, the `fastp.nf` script recognises this pattern (`*_R{1,2}_001.fastq.gz`) for each sample pair and during processing removes the project ID `10628_` from the beginning and the plate ID (e.g. `S72`) from the middle of each sample name. This script also optionally accepts reads downloaded from the Sequence Read Archive (SRA). If you want to adapt this script to suit your own file formats, edit both the pattern recognition and the project/plate ID code segments.
+## Conda Environment
 
-**Download SRA reads for Project [PRJNA682082](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA682082)**
+Create environment using conda:   
+`conda env create -f ./nextflow-pipelines/env/fastp.yml`  
+
+Create environment using mamba (faster):  
+`mamba env create -f ./nextflow-pipelines/env/fastp.yml`
+
+Activate conda environment:  
+`mamba activate fastp` or `conda activate fastp` or `source activate fastp`
+
+## Usage
 ```
-mamba create -n fastq-dl -c conda-forge -c bioconda fastq-dl=2.0.0
-mamba activate fastq-dl
-fastq-dl --outdir sra_reads/ --cpus 4 --provider SRA --accession PRJNA682082
+#!/bin/bash
+
+# Activate conda environment
+mamba activate fastp
+
+# Variables
+cpus=16
+reads=/path/to/reads/directory
+esf=/path/to/reads/directory
+adapters=/path/to/adapters/adapters.fasta
+outdir=/path/to/output/directory
+
+# Run pipeline
+nextflow run ./nextflow-pipelines/src/fastp.nf \
+    --reads /path/to/reads/directory \
+    --reads_suffix "_{1,2}.fastq.gz" \
+    --esf /path/to/reads/directory \
+    --esf_prefix "11171_|11002_|10628_" \
+    --esf_suffix "_R{1,2}_001.fastq.gz" \
+    --adapters ${adapters} \
+    --outdir ${outdir} \
+    --cpus ${cpus}
 ```
 
-**Example input:**
+| Parameter | Description
+| :- | :-
+| `--reads` | input directory containing FASTQ files
+| `--reads_suffix` | string denoting the suffix after a sample name and read1 and read2 in the paired reads {1,2}
+| `--esf` | input directory containing FASTQ files with prefixes
+| `--esf_prefix` | string denoting the prefix before a sample name
+| `--esf_suffix` | string denoting the suffix after a sample name and read1 and read2 in the paired reads {1,2}
+| `--adapters` | path to FASTA file with adapter sequences
+| `--outdir` | output directory
+| `--test` | prints out a tuple of the sample ID and paths to the input paired reads (dry run)
+| `--cpus` | number of cpus
+> `--reads` or `--esf` is required. Strings for `--esf_prefix` can contain a pipe `|` when multiple prefixes are present.
+
+The `--esf` and related parameters work for sequencing files in the following format: `10628_Sample_ID_S1_R1_001.fastq.gz`.
+
+**Example input:**  
 ```
 $ ls raw_reads/
-```
-```
-10628_Sample_ID_S3_R1_001.fastq.gz 10628_Sample_ID_S40_R1_001.fastq.gz
-10628_Sample_ID_S3_R2_001.fastq.gz 10628_Sample_ID_S40_R2_001.fastq.gz
-```
-```
-$ ls sra_reads/
-```
-```
 SRR13356831_1.fastq.gz SRR13356832_1.fastq.gz
 SRR13356831_2.fastq.gz SRR13356832_2.fastq.gz
 ```
-
-## 1. Install fastp
-
-First, create a conda environment for fastp v0.23.2.
 ```
-# Create conda env
-mamba create -n fastp -c bioconda fastp=0.23.2
-
-# Print env paths on system
-mamba env list
+$ ls raw_reads_esf/
+10628_Sample_ID_S3_R1_001.fastq.gz 10628_Sample_ID_S40_R1_001.fastq.gz
+10628_Sample_ID_S3_R2_001.fastq.gz 10628_Sample_ID_S40_R2_001.fastq.gz
 ```
-Second, edit path to the fastp conda environment in the `fastp.nf` script (line 41).
-```
-conda "/path/to/mambaforge3/envs/fastp"
-```
-
-## 2. Run fastp nextflow script
-
-```
-nextflow run ./src/fastp.nf \
-    --cpus 16 \
-    --reads /path/to/raw_reads/ \
-    --sra /path/to/sra_reads/ \
-    --outdir /path/to/output_dir/
-```
-| Parameter | Description
-| :- | :-
-| --cpus | number of threads
-| --reads | directory path containing input FASTQ files
-| --sra | directory path containing input SRA FASTQ files (optional)
-| --outdir | directory path for trimmed output FASTQ files
 
 ## Output
 
-The output of `fastp.nf` is a directory called `trimmed_reads/` that is automatically created in the `--outdir` path. In this directory are the trimmed reads for each sample pair that were present in the input `--reads` directory.
+The `fastp.nf` script outputs the results to a directory called `${outdir}/trimmed_reads`. This directory contains the trimmed reads for each paired sample.
 
-**Example output:**
+**Example output:**  
 ```
 $ ls trimmed_reads/
+SampleID_01_1.fp.fq.gz SampleID_01_1.fp.fq.gz
+SampleID_01_2.fp.fq.gz SampleID_01_2.fp.fq.gz
 ```
-```
-SampleID1_trim.R1.fq.gz SampleID2_trim.R1.fq.gz
-SampleID1_trim.R2.fq.gz SampleID2_trim.R2.fq.gz
-```
-

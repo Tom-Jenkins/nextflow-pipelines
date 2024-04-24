@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 // Requires that fastp is installed (last tested with v0.23.4)
 
 // Example usage:
-// nextflow run /path/to/nextflow-pipelines/src/fastp.nf \
+// nextflow run ./nextflow-pipelines/src/fastp.nf \
 //     --reads /path/to/reads/directory \
 //     --reads_suffix "_{1,2}.fastq.gz" \
 //     --esf /path/to/reads/directory \
