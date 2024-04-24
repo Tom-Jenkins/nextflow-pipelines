@@ -3,17 +3,17 @@
 nextflow.enable.dsl=2
 
 // Notes:
-// Requires that fastp v0.23.4+ is installed
+// Requires that fastp is installed (last tested with v0.23.4)
 
 // Example usage:
-// nextflow run /lustre/home/tj311/nextflow-scripts/fastp.nf \
-//     --reads /lustre/home/tj311/nextflow-scripts/test \
+// nextflow run /path/to/nextflow-pipelines/src/fastp.nf \
+//     --reads /path/to/reads/directory \
 //     --reads_suffix "_{1,2}.fastq.gz" \
-//     --esf /lustre/home/tj311/nextflow-scripts/test \
+//     --esf /path/to/reads/directory \
 //     --esf_prefix "11171_|11002_|10628_" \
 //     --esf_suffix "_R{1,2}_001.fastq.gz" \
-//     --adapters /lustre/home/tj311/illumina_adapters.fasta \
-//     --outdir /lustre/home/tj311/nextflow-scripts/test \
+//     --adapters /path/to/adapters/adapters.fasta \
+//     --outdir /path/to/output/directory \
 //     --cpus 16
 
 // Parameters
