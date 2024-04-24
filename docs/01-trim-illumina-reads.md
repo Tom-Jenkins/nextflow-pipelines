@@ -24,7 +24,7 @@ mamba activate fastp
 cpus=16
 reads=/path/to/reads/directory
 esf=/path/to/reads/directory
-adapters=/path/to/adapters/adapters.fasta
+adapters=./nextflow-pipelines/misc/adapters.fasta
 outdir=/path/to/output/directory
 
 # Run pipeline
@@ -57,8 +57,8 @@ The `--esf` and related parameters work for sequencing files in the following fo
 **Example input:**  
 ```
 $ ls raw_reads/
-SRR13356831_1.fastq.gz SRR13356832_1.fastq.gz
-SRR13356831_2.fastq.gz SRR13356832_2.fastq.gz
+SampleID_01_1.fastq.gz SampleID_02_1.fastq.gz
+SampleID_01_2.fastq.gz SampleID_02_2.fastq.gz
 ```
 ```
 $ ls raw_reads_esf/
