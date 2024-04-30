@@ -2,7 +2,7 @@
 
 > Note: this repository will be continually updated as scripts are tested. Pipelines not ready for deployment are noted as *in development* below. 
 
-The main purpose of this repository is to provide nextflow scripts that process sequencing data from multiple samples. These scripts have been designed for a specific purpose, such as trimming reads from multiple paired samples, and are an alternative to setting up bash loops or writing other custom scripts.
+The main purpose of this repository is to share nextflow scripts that process sequencing data from multiple samples. These scripts have been designed for a specific purpose, such as trimming reads from multiple paired samples, and are an alternative to setting up bash loops or writing other custom scripts.
 
 ## Setup
 There are two ways to install the software needed to run the nextflow scripts. The recommended way is to set up a conda environment which will install all the software needed, including nextflow, to run a pipeline. Instructions for setting up conda environments are detailed in the documentation. An alternative is to install all the software needed manually and then call a nextflow script. If using this manual approach, the software dependencies for each pipeline is detailed in the documentation.
