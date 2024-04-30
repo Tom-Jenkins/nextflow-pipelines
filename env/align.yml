@@ -1,0 +1,7 @@
+name: align
+dependencies:
+  - nextflow=23.10.1
+  - python=3.10
+  - bowtie2=2.5.3
+  - bwa-mem2=2.2.1
+  - samtools=1.19.2
