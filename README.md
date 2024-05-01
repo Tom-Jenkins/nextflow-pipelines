@@ -14,6 +14,10 @@ Add conda channels:
 `conda config --add channels conda-forge`  
 `conda config --add channels bioconda`
 
+### Clone Repository
+Clone this repository to download the nextflow scripts ([src/](./src)) and the conda environment setup files ([env/](./env)) to the current working directory:  
+`git clone https://github.com/Tom-Jenkins/nextflow-pipelines.git`
+
 ### Nextflow
 If you are manually installing software, nextflow can be installed by following the installation [docs](https://www.nextflow.io/docs/latest/getstarted.html). The scripts have currently been tested with nextflow v23.10.1 and java v18.0.2.1 2022-08-18.
 
