@@ -2,13 +2,10 @@
 
 nextflow.enable.dsl=2
 
-// Notes:
-// Requires that fastp is installed (last tested with v0.23.4)
-
 // Example usage:
 // nextflow run ./nextflow-pipelines/src/fastp.nf \
 //     --reads /path/to/reads/directory \
-//     --reads_suffix "_{1,2}.fastq.gz" \
+//     --suffix "_{1,2}.fastq.gz" \
 //     --esf /path/to/reads/directory \
 //     --esf_prefix "11171_|11002_|10628_" \
 //     --esf_suffix "_R{1,2}_001.fastq.gz" \
@@ -18,11 +15,11 @@ nextflow.enable.dsl=2
 
 // Parameters
 params.reads = "${PWD}"
-params.reads_suffix = "_{1,2}.fastq.gz"
+params.suffix = "_{1,2}.fastq.gz"
 params.esf = "${PWD}"
 params.esf_prefix = ""
 params.esf_suffix = "_R{1,2}_001.fastq.gz"
-params.adapters = "${PWD}/adapters.fasta"
+params.adapters = ""
 params.outdir = "${PWD}"
 params.test = false
 params.cpus = 16
@@ -32,7 +29,6 @@ log.info """\
          F A S T P - N F   P I P E L I N E
          ===================================
          Input directory: ${params.reads} ${params.esf}
-         Adapter file: ${params.adapters}
          Output directory: ${params.outdir}/trimmed_reads
          Number of threads: ${params.cpus}
          Script version: v0.1
@@ -44,13 +40,13 @@ workflow {
 
     // Create reads channel
     reads_ch = Channel
-        .fromFilePairs("${params.reads}/*${params.reads_suffix}", checkIfExists: false)
+        .fromFilePairs("${params.reads}/*${params.suffix}", checkIfExists: false)
         .ifEmpty { 
-            println "No paired reads found with the pattern `*${params.reads_suffix}`"
+            println "No paired reads found with the pattern `*${params.suffix}`"
             Channel.empty()
         }
 
-    // Create reads channel for Exeter Sequencing Facility data
+    // Create reads channel for Sequencing Facility data
     reads_esf_ch = Channel
         .fromFilePairs("${params.esf}/*${params.esf_suffix}", checkIfExists: false)
         .ifEmpty { 
