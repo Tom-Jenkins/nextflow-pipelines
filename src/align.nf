@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 // Parameters
 params.reads = "${PWD}"
 params.suffix = "_{1,2}.fastq.gz"
-params.genome = "${PWD}"
+params.reference = "${PWD}"
 params.outdir = "${PWD}"
 params.aligner = "bowtie2"
 params.bowtie2 = ""
@@ -21,7 +21,7 @@ log.info """\
          ===================================
          Input reads directory: ${params.reads}
          Input reads suffix: ${params.suffix}
-         Input reference genome: ${params.genome}
+         Reference FASTA: ${params.reference}
          Aligner software chosen: ${params.aligner}
          Aligner parameter(s): ${params.aligner == "bowtie2" ? params.bowtie2 : params.bwamem2}
          Filtering parameter(s): ${params.filter}
@@ -88,7 +88,7 @@ process BOWTIE2 {
 
     script:
     """
-    bowtie2 -p ${params.cpus} ${params.bowtie2} -x ${params.genome} -1 ${reads[0]} -2 ${reads[1]} -S ${sample_id}.sam
+    bowtie2 -p ${params.cpus} ${params.bowtie2} -x ${params.reference} -1 ${reads[0]} -2 ${reads[1]} -S ${sample_id}.sam
     samtools view -@ ${params.cpus} -b ${sample_id}.sam > ${sample_id}.bam
     rm ${sample_id}.sam
     """
@@ -110,7 +110,7 @@ process BWAMEM2 {
 
     script:
     """
-    bwa-mem2 mem -t ${params.cpus} ${params.bwamem2} -a ${params.genome} ${reads[0]} ${reads[1]} > ${sample_id}.sam
+    bwa-mem2 mem -t ${params.cpus} ${params.bwamem2} -a ${params.reference} ${reads[0]} ${reads[1]} > ${sample_id}.sam
     samtools view -@ ${params.cpus} -b ${sample_id}.sam > ${sample_id}.bam
     rm ${sample_id}.sam
     """
