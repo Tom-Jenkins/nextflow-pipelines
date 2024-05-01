@@ -19,7 +19,10 @@ If you are manually installing software, nextflow can be installed by following 
 
 ## Documentation
 
-### Nextflow Pipeline (*in development*)
+### Nextflow Pipeline
+- [Align Paired Reads To Reference](./docs/align-paired-reads.md)
+
+### In Development
 - [Trim Illumina paired-end reads](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/docs/01-trim-illumina-reads.md)
 - [Organelle assembly and annotation](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/docs/02-organelle-assembly-annotation.md)
 - [Reference genome assembly](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/docs/03-reference-genome-assembly.md)
