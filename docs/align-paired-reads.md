@@ -27,7 +27,8 @@ genome=/path/to/reference/filename.fasta
 outdir=/path/to/reads/directory
 
 # Index genome
-bowtie2-build ${pcal_genome} ${pcal_genome}
+# bowtie2-build ${genome} ${genome}
+# bwa-mem2 index ${genome}
 
 # Run pipeline
 nextflow run ~/nextflow-pipelines/src/align.nf \
