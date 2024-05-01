@@ -41,8 +41,8 @@ nextflow run ~/nextflow-pipelines/src/align.nf \
     --cpus ${cpus}
 ```
 
-| <div style="width:100px">Parameter</div> | Description
-| :- | :-
+| Parameters&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
+| :--- | :---
 | `--reads` | path to input directory containing FASTQ files
 | `--suffix` | string denoting the suffix after a sample name and the forward (read1) and reverse (read2) designation (e.g. for read pair `sample_1.fq.gz` and `sample_2.fq.gz` set the parameter to `--suffix "_{1,2}.fq.gz"`. The name of this BAM file will be called `sample.bam`) 
 | `--reference` | path to reference FASTA file (e.g. reference genome)
