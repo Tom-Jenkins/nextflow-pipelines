@@ -68,8 +68,8 @@ process KRAKEN2 {
         --threads ${params.cpus} \
         --db ${params.krakenDB} \
         ${params.kraken2} \
-        --output ${params.outdir}/${sample_id}.kraken \
-        --report ${params.outdir}/${sample_id}.report \
+        --output ${sample_id}.kraken \
+        --report ${sample_id}.report \
         --paired ${reads[0]} ${reads[1]}
     """
 }
