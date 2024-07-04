@@ -21,6 +21,7 @@ params.esf_prefix = ""
 params.esf_suffix = "_R{1,2}_001.fastq.gz"
 params.adapters = ""
 params.outdir = "${PWD}"
+params.filter = "--qualified_quality_phred 30 --length_required 100 --trim_poly_g"
 params.test = false
 params.cpus = 16
 
@@ -30,8 +31,9 @@ log.info """\
          ===================================
          Input directory: ${params.reads} ${params.esf}
          Output directory: ${params.outdir}/trimmed_reads
+         Filtering parameter(s): ${params.filter}
          Number of threads: ${params.cpus}
-         Script version: v0.1
+         Script version: v0.2
          """
          .stripIndent()
 
@@ -86,7 +88,7 @@ process FASTP {
     output:
     // Output file names in the format `sample_ID.fp.fq.gz`
     path("*fp.fq.gz")
-    // path("*.html")
+    path("*.html")
     // path("*.json")
 
     script:
@@ -97,9 +99,7 @@ process FASTP {
     -o ${sample_id}_1.fp.fq.gz \
     -O ${sample_id}_2.fp.fq.gz \
     --adapter_fasta ${params.adapters} \
-    --qualified_quality_phred 30 \
-    --trim_poly_g \
-    --length_required 100 \
+    ${params.filter} \
     --json ${sample_id}_fastp.json \
     --html ${sample_id}_fastp.html \
     --thread ${task.cpus}
