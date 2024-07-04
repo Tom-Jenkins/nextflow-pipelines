@@ -29,9 +29,9 @@ outdir=/path/to/output/directory
 
 # Run pipeline
 nextflow run ./nextflow-pipelines/src/fastp.nf \
-    --reads /path/to/reads/directory \
+    --reads ${reads} \
     --reads_suffix "_{1,2}.fastq.gz" \
-    --esf /path/to/reads/directory \
+    --esf ${esf} \
     --esf_prefix "11171_|11002_|10628_" \
     --esf_suffix "_R{1,2}_001.fastq.gz" \
     --adapters ${adapters} \
