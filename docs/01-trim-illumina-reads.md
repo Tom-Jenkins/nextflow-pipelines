@@ -23,18 +23,15 @@ mamba activate fastp
 # Variables
 cpus=16
 reads=/path/to/reads/directory
-esf=/path/to/reads/directory
 adapters=./nextflow-pipelines/misc/adapters.fasta
 outdir=/path/to/output/directory
 
 # Run pipeline
 nextflow run ./nextflow-pipelines/src/fastp.nf \
     --reads ${reads} \
-    --reads_suffix "_{1,2}.fastq.gz" \
-    --esf ${esf} \
-    --esf_prefix "11171_|11002_|10628_" \
-    --esf_suffix "_R{1,2}_001.fastq.gz" \
+    --suffix "_{1,2}.fastq.gz" \
     --adapters ${adapters} \
+    --filter "--qualified_quality_phred 30 --length_required 100 --trim_poly_g" \
     --outdir ${outdir} \
     --cpus ${cpus}
 ```
@@ -42,28 +39,18 @@ nextflow run ./nextflow-pipelines/src/fastp.nf \
 | Parameter | Description
 | :- | :-
 | `--reads` | input directory containing FASTQ files
-| `--reads_suffix` | string denoting the suffix after a sample name and read1 and read2 in the paired reads {1,2}
-| `--esf` | input directory containing FASTQ files with prefixes
-| `--esf_prefix` | string denoting the prefix before a sample name
-| `--esf_suffix` | string denoting the suffix after a sample name and read1 and read2 in the paired reads {1,2}
+| `--suffix` | string denoting the suffix after a sample name and read1 and read2 in the paired reads {1,2}
 | `--adapters` | path to FASTA file with adapter sequences
+| `--filter` | string denoting parameters passed to fastp
 | `--outdir` | output directory
 | `--test` | prints out a tuple of the sample ID and paths to the input paired reads (dry run)
 | `--cpus` | number of cpus
-> `--reads` or `--esf` is required. Strings for `--esf_prefix` can contain a pipe `|` when multiple prefixes are present.
-
-The `--esf` and related parameters work for sequencing files in the following format: `10628_Sample_ID_S1_R1_001.fastq.gz`.
 
 **Example input:**  
 ```
 $ ls raw_reads/
 SampleID_01_1.fastq.gz SampleID_02_1.fastq.gz
 SampleID_01_2.fastq.gz SampleID_02_2.fastq.gz
-```
-```
-$ ls raw_reads_esf/
-10628_Sample_ID_S3_R1_001.fastq.gz 10628_Sample_ID_S40_R1_001.fastq.gz
-10628_Sample_ID_S3_R2_001.fastq.gz 10628_Sample_ID_S40_R2_001.fastq.gz
 ```
 
 ## Output
