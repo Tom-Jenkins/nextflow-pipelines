@@ -60,6 +60,6 @@ The `fastp.nf` script outputs the results to a directory called `${outdir}/trimm
 **Example output:**  
 ```
 $ ls trimmed_reads/
-SampleID_01_1.fp.fq.gz SampleID_01_1.fp.fq.gz
-SampleID_01_2.fp.fq.gz SampleID_01_2.fp.fq.gz
+SampleID_01_1.fp.fq.gz SampleID_02_1.fp.fq.gz
+SampleID_01_2.fp.fq.gz SampleID_02_2.fp.fq.gz
 ```
