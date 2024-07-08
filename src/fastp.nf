@@ -66,7 +66,7 @@ process FASTP {
     // Output file names in the format `sample_ID.fp.fq.gz`
     path("*.fp.fq.gz")
     path("*.html")
-    // path("*.json")
+    path("*.json")
 
     script:
     """
