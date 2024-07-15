@@ -28,7 +28,7 @@ If you are manually installing software, nextflow can be installed by following 
 ## Documentation
 
 ### Nextflow Pipeline
-- [Trim Illumina paired-end reads](./docs/01-trim-illumina-reads.md)
+- [Trim Illumina paired-end reads](./docs/trim-illumina-reads.md)
 - [Align Paired Reads To Reference](./docs/align-paired-reads.md)
 
 ### In Development
