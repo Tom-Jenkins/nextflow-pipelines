@@ -4,15 +4,12 @@ nextflow.enable.dsl=2
 
 // Notes:
 // Make sure the seed sequences are indexed with bowtie2 prior to running pipeline
-// bowtie2-build maerl-mitochondrion-seeds.fa maerl-mitochondrion-seeds.fa
-// bowtie2-build maerl-chloroplast-seeds.fa maerl-chloroplast-seeds.fa
-
-// Example usage:
-
+// bowtie2-build mitochondrion-seeds.fa mitochondrion-seeds.fa
+// bowtie2-build chloroplast-seeds.fa chloroplast-seeds.fa
 
 // Parameters
 params.reads = "${PWD}"
-params.reads_suffix = "_{1,2}.fastq.gz"
+params.suffix = "_{1,2}.fastq.gz"
 params.mitogenome = false
 params.plastome = false
 params.mito_seed = ""
@@ -21,6 +18,7 @@ params.mito_ref = []
 mito_ref = params.mito_ref ? params.mito_ref?.tokenize(",") : "None"
 params.plastid_ref = []
 plastid_ref = params.plastid_ref ? params.plastid_ref?.tokenize(",") : "None"
+params.nextflow_pipelines_path = "${HOME}/nextflow-pipelines"
 params.outdir = "${PWD}"
 params.test = false
 params.cpus = 16
@@ -45,8 +43,8 @@ workflow {
 
     // Import trimmed reads
     reads_ch = Channel
-        .fromFilePairs("${params.reads}/*${params.reads_suffix}", checkIfExists: false)
-        .ifEmpty { error "No paired reads found with the pattern `*${params.reads_suffix}`" }
+        .fromFilePairs("${params.reads}/*${params.suffix}", checkIfExists: false)
+        .ifEmpty { error "No paired reads found with the pattern `*${params.suffix}`" }
 
     // Test run to view parameters and contents of reads_ch
     if ( params.test ) {
@@ -164,7 +162,7 @@ process ANNOTATE_MITOGENOME {
     // number of genbank references included in the reference param
     script:
     """
-    python ~/nextflow-scripts/extract_CDS.py \\
+    python ${params.nextflow_pipelines_path}/misc/extract_CDS.py \\
         ${mitogenome} \\
         ${mito_ref.join(' \\')} \\
         -o ${sample_id}.cds.fasta
@@ -249,7 +247,7 @@ process ANNOTATE_PLASTOME {
     // number of genbank references included in the reference param
     script:
     """
-    python ~/nextflow-scripts/extract_CDS.py \\
+    python ${params.nextflow_pipelines_path}/misc/extract_CDS.py \\
         ${plastome} \\
         ${plastid_ref.join(' \\')} \\
         -o ${sample_id}.cds.fasta

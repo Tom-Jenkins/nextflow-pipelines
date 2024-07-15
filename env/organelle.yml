@@ -5,3 +5,6 @@ dependencies:
   - bowtie2=2.5.3
   - unicycler=0.5.0
   - samtools=1.19.2
+  - biopython
+  - entrez-direct
+  - seqkit

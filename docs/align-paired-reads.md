@@ -8,6 +8,7 @@ The [`align.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src
 * Python (3.10)
 * bowtie2 (2.5.3)
 * bwa-mem2 (2.2.1)
+* SAMtools (1.19.2)
 
 ## Conda Environment
 
