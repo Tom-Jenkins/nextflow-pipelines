@@ -91,7 +91,7 @@ nextflow run ~/nextflow-pipelines/src/organelle.nf \
     --mito_ref ${ref}/mitochondrion-reference.gb \
     --plastome \
     --plastid_seed ${ref}/chloroplast-seeds.fa \
-    --plastid_ref ${ref}/chloroplast-reference1.gb,${ref}/chloroplast-reference2.gb,${ref}/chloroplast-reference3.gb, \
+    --plastid_ref ${ref}/chloroplast-reference1.gb,${ref}/chloroplast-reference2.gb,${ref}/chloroplast-reference3.gb \
     --outdir ${outdir} \
     --cpus ${cpus}
 ```
