@@ -1,4 +1,4 @@
-# Align Paired Reads To Reference
+# Align Paired-End Reads To Reference
 
 The [`align.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/align.nf) nextflow script will take any number of paired reads in FASTQ format and output sorted BAM alignments reads using [bowtie2](https://github.com/BenLangmead/bowtie2) or [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2). 
 

@@ -28,8 +28,8 @@ If you are manually installing software, nextflow can be installed by following 
 ## Documentation
 
 ### Nextflow Pipeline
-- [Trim paired reads](./docs/trim-illumina-reads.md)
-- [Align paired reads to reference](./docs/align-paired-reads.md)
+- [Trim paired-end reads](./docs/trim-paired-reads.md)
+- [Align paired-end reads to reference](./docs/align-paired-reads.md)
 - [Organelle assembly and annotation](./docs/organelle-assembly-annotation.md)
 
 ### In Development

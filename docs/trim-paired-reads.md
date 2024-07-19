@@ -1,4 +1,4 @@
-# Trim Illumina Paired-End Reads
+# Trim Paired-End Reads
 
 The [`fastp.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/fastp.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format and output trimmed reads using [fastp](https://github.com/OpenGene/fastp). 
 
