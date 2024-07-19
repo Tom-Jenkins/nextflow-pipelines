@@ -25,6 +25,7 @@ graph TD;
 * bowtie2 (2.5.3)
 * SAMtools (1.19.2)
 * Unicycler (0.5.0)
+* BLAST+ (2.15.0)
 * biopython
 
 ## Conda Environment
@@ -96,7 +97,7 @@ nextflow run ~/nextflow-pipelines/src/organelle.nf \
     --cpus ${cpus}
 ```
 
-| Parameter | Description
+| Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
 | :- | :-
 | `--reads` | path to input directory containing FASTQ files
 | `--suffix` | string denoting the suffix after a sample name and the forward (read1) and reverse (read2) designation (e.g. for read pair `sample_1.fq.gz` and `sample_2.fq.gz` set the parameter to `--suffix "_{1,2}.fq.gz"`)

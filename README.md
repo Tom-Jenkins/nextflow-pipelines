@@ -28,11 +28,12 @@ If you are manually installing software, nextflow can be installed by following 
 ## Documentation
 
 ### Nextflow Pipeline
-- [Trim Illumina paired-end reads](./docs/trim-illumina-reads.md)
-- [Align Paired Reads To Reference](./docs/align-paired-reads.md)
+- [Trim paired reads](./docs/trim-illumina-reads.md)
+- [Align paired reads to reference](./docs/align-paired-reads.md)
 - [Organelle assembly and annotation](./docs/organelle-assembly-annotation.md)
 
 ### In Development
-- [Reference genome assembly](./docs/03-reference-genome-assembly.md)
+- Kraken2
+- Genome assembly
 
 

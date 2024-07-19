@@ -42,7 +42,7 @@ nextflow run ./nextflow-pipelines/src/fastp.nf \
     --cpus ${cpus}
 ```
 
-| Parameter | Description
+| Parameter&nbsp;&nbsp;&nbsp;&nbsp; | Description
 | :- | :-
 | `--reads` | input directory containing FASTQ files
 | `--suffix` | string denoting the suffix after a sample name and read1 and read2 in the paired reads {1,2}
