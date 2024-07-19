@@ -17,8 +17,9 @@ conda config --add channels bioconda
 ```
 
 ### Clone Repository
-Clone this repository to download the nextflow scripts ([src](./src)) and the conda environment setup files ([env](./env)) to the current working directory:  
+Clone this repository to download the nextflow scripts ([src](./src)) and the conda environment setup files ([env](./env)) to the home directory:  
 ```
+cd $HOME
 git clone https://github.com/Tom-Jenkins/nextflow-pipelines.git
 ```
 
