@@ -97,7 +97,7 @@ nextflow run ~/nextflow-pipelines/src/organelle.nf \
     --cpus ${cpus}
 ```
 
-| Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
+| Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
 | :- | :-
 | `--reads` | path to input directory containing FASTQ files
 | `--suffix` | string denoting the suffix after a sample name and the forward (read1) and reverse (read2) designation (e.g. for read pair `sample_1.fq.gz` and `sample_2.fq.gz` set the parameter to `--suffix "_{1,2}.fq.gz"`)
@@ -109,6 +109,7 @@ nextflow run ~/nextflow-pipelines/src/organelle.nf \
 | `--plastid_ref` | file path containing GenBank references (.gb). Multiple reference files separated by a comma.
 | `--outdir` | path to output directory
 | `--test` | prints out a tuple of the sample ID and paths to the input paired reads (dry run)
+| `--nextflow_pipelines_path` | path to nextflow pipelines directory (default: `${HOME}/nextflow-pipelines`)
 | `--cpus` | integer denoting the number of cpus (default: `16`)
 
 **Example input:**  

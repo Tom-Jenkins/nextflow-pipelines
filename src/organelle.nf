@@ -33,6 +33,7 @@ log.info """\
          Mitochondrial reference(s): ${mito_ref}
          Chloroplast seed: ${params.plastid_seed != "" ? params.plastid_seed : "None"}
          Chloroplast reference(s): ${plastid_ref}
+         Nextflow pipelines path: ${params.nextflow_pipelines_path}
          Number of threads: ${params.cpus}
          Script version: v0.1
          """
