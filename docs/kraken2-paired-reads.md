@@ -1,12 +1,12 @@
 # Classify Paired-End Reads Using Kraken2
 
-The [`kraken2.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/align.nf) nextflow script will take any number of paired reads in FASTQ format and output sorted BAM alignments reads using [bowtie2](https://github.com/BenLangmead/bowtie2) or [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2). 
+The [`kraken2.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/kraken2.nf) nextflow script will take any number of paired reads in FASTQ format and classify reads using Kraken2. 
 
 ## Dependencies (version tested)
 * Nextflow (23.10.1)
 * Java (18.0.2.1)
 * Python (3.10)
-* Kraken2 (X.X)
+* Kraken2 (2.1.3)
 
 ## Conda Environment
 
@@ -45,11 +45,9 @@ nextflow run ~/nextflow-pipelines/src/kraken2.nf \
 | :--- | :---
 | `--reads` | path to input directory containing FASTQ files
 | `--suffix` | string denoting the suffix after a sample name and the forward (read1) and reverse (read2) designation (e.g. for read pair `sample_1.fq.gz` and `sample_2.fq.gz` set the parameter to `--suffix "_{1,2}.fq.gz"`. The name of this BAM file will be called `sample.bam`) 
-| `--KrakenDB` | path to reference FASTA file (e.g. reference genome)
+| `--krakenDB` | path to Kraken2 database
+| `--kraken2` | string of additional arguments passed to bowtie2 (e.g. "--gzip-compressed --minimum-hit-groups 3")
 | `--outdir` | path to output directory
-| `--aligner` | string denoting whether to use bowtie2 `"bowtie2"` or bwa-mem2 `"bwa-mem2"` for alignments (default: `"bowtie2"`)
-| `--kraken2`| string of additional arguments passed to bowtie2 (e.g. `--bowtie2 "--sensitive --seed 123"`)
-| `--test` | prints out a tuple of the sample ID and paths to the input paired reads (dry run)
 | `--cpus` | integer denoting the number of cpus (default: `16`)
 
 
@@ -65,5 +63,6 @@ SampleID_01_2.fq.gz SampleID_02_2.fq.gz
 
 ```
 $ ls output/
-SampleID_01.bam SampleID_02.bam
+SampleID_01.kraken SampleID_02.kraken
+SampleID_01.report SampleID_02.report
 ```

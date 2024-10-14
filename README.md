@@ -32,6 +32,7 @@ If you are manually installing software, nextflow can be installed by following 
 - [Trim paired-end reads](./docs/trim-paired-reads.md)
 - [Align paired-end reads to reference](./docs/align-paired-reads.md)
 - [Organelle assembly and annotation](./docs/organelle-assembly-annotation.md)
+- [Classify paired-end reads using Kraken2](./docs/kraken2-paired-reads.md)
 
 ### In Development
 - Kraken2
