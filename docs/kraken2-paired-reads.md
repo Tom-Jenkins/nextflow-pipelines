@@ -46,7 +46,7 @@ nextflow run ~/nextflow-pipelines/src/kraken2.nf \
 | `--reads` | path to input directory containing FASTQ files
 | `--suffix` | string denoting the suffix after a sample name and the forward (read1) and reverse (read2) designation (e.g. for read pair `sample_1.fq.gz` and `sample_2.fq.gz` set the parameter to `--suffix "_{1,2}.fq.gz"`. The name of this BAM file will be called `sample.bam`) 
 | `--krakenDB` | path to Kraken2 database
-| `--kraken2` | string of additional arguments passed to bowtie2 (e.g. "--gzip-compressed --minimum-hit-groups 3")
+| `--kraken2` | string of additional arguments passed to kraken2 (e.g. "--gzip-compressed --minimum-hit-groups 3")
 | `--outdir` | path to output directory
 | `--cpus` | integer denoting the number of cpus (default: `16`)
 
