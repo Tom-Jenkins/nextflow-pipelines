@@ -35,7 +35,6 @@ If you are manually installing software, nextflow can be installed by following 
 - [Classify paired-end reads using Kraken2](./docs/kraken2-paired-reads.md)
 
 ### In Development
-- Kraken2
-- Genome assembly
+- Variant calling
 
 

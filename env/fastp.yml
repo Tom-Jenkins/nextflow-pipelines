@@ -1,5 +1,5 @@
 name: fastp
 dependencies:
-  - nextflow=23.10.1
+  - nextflow=24.04
   - python=3.10
   - fastp=0.23.4
