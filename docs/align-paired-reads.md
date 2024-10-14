@@ -15,18 +15,15 @@ The [`align.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src
 Create environment using conda:   
 `conda env create -f ./nextflow-pipelines/env/align.yml`  
 
-Create environment using mamba (faster):  
-`mamba env create -f ./nextflow-pipelines/env/align.yml`
-
 Activate conda environment:  
-`mamba activate align` or `conda activate align` or `source activate align`
+`conda activate align` or `source activate align`
 
 ## Usage
 ```
 #!/bin/bash
 
 # Activate conda environment
-mamba activate align
+conda activate align
 
 # Variables
 cpus=20

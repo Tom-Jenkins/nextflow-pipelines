@@ -13,18 +13,15 @@ The [`fastp.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src
 Create environment using conda:   
 `conda env create -f ./nextflow-pipelines/env/fastp.yml`  
 
-Create environment using mamba (faster):  
-`mamba env create -f ./nextflow-pipelines/env/fastp.yml`
-
 Activate conda environment:  
-`mamba activate fastp` or `conda activate fastp` or `source activate fastp`
+`conda activate fastp` or `source activate fastp`
 
 ## Usage
 ```
 #!/bin/bash
 
 # Activate conda environment
-mamba activate fastp
+conda activate fastp
 
 # Variables
 cpus=16

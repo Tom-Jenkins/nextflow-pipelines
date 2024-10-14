@@ -33,18 +33,15 @@ graph TD;
 Create environment using conda:   
 `conda env create -f ./nextflow-pipelines/env/organelle.yml`  
 
-Create environment using mamba (faster):  
-`mamba env create -f ./nextflow-pipelines/env/organelle.yml`
-
 Activate conda environment:  
-`mamba activate organelle` or `conda activate organelle` or `source activate organelle`
+`conda activate organelle` or `source activate organelle`
 
 ## Prepare reference files
 
 ### Download seed sequences for species of interest
 ```
 # Activate conda environment
-mamba activate organelle
+conda activate organelle
 
 # Create directory to store references
 mkdir references
@@ -57,7 +54,7 @@ efetch -db nucleotide -id OQ417768.1,OQ417769.1,MH281627.1 -format fasta > refer
 ### Download GenBank references
 ```
 # Activate conda environment
-mamba activate organelle
+conda activate organelle
 
 # Download one or more GenBank Reference files (replace -id with your accession IDs)
 efetch -db nucleotide -id MW357900.2 -format gb > references/mitochondrion-reference.gb
@@ -71,7 +68,7 @@ efetch -db nucleotide -id MH281627.1 -format gb > references/chloroplast-referen
 #!/bin/bash
 
 # Activate conda environment
-mamba activate organelle
+conda activate organelle
 
 # Variables
 cpus=20

@@ -13,18 +13,15 @@ The [`kraken2.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/s
 Create environment using conda:   
 `conda env create -f ./nextflow-pipelines/env/kraken2.yml`  
 
-Create environment using mamba (faster):  
-`mamba env create -f ./nextflow-pipelines/env/kraken2.yml`
-
 Activate conda environment:  
-`mamba activate kraken2` or `conda activate kraken2` or `source activate kraken2`
+`conda activate kraken2` or `source activate kraken2`
 
 ## Usage
 ```
 #!/bin/bash
 
 # Activate conda environment
-mamba activate kraken2
+conda activate kraken2
 
 # Variables
 cpus=20
