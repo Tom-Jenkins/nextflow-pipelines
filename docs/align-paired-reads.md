@@ -3,7 +3,7 @@
 The [`align.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/align.nf) nextflow script will take any number of paired reads in FASTQ format and output sorted BAM alignments reads using [bowtie2](https://github.com/BenLangmead/bowtie2) or [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2). 
 
 ## Dependencies (version tested)
-* Nextflow (23.10.1)
+* Nextflow (24.04.4)
 * Java (18.0.2.1)
 * Python (3.10)
 * bowtie2 (2.5.3)

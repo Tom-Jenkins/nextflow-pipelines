@@ -19,7 +19,7 @@ graph TD;
 ```
 
 ## Dependencies (version tested)
-* Nextflow (23.10.1)
+* Nextflow (24.04.4)
 * Java (18.0.2.1)
 * Python (3.10)
 * bowtie2 (2.5.3)

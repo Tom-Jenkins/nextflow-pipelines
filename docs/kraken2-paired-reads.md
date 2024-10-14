@@ -3,7 +3,7 @@
 The [`kraken2.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/kraken2.nf) nextflow script will take any number of paired reads in FASTQ format and classify reads using Kraken2. 
 
 ## Dependencies (version tested)
-* Nextflow (23.10.1)
+* Nextflow (24.04.4)
 * Java (18.0.2.1)
 * Python (3.10)
 * Kraken2 (2.1.3)

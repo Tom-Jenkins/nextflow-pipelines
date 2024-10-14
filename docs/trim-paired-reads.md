@@ -3,7 +3,7 @@
 The [`fastp.nf`](https://github.com/Tom-Jenkins/nextflow-pipelines/blob/main/src/fastp.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format and output trimmed reads using [fastp](https://github.com/OpenGene/fastp). 
 
 ## Dependencies (version tested)
-* Nextflow (23.10.1)
+* Nextflow (24.04.4)
 * Java (18.0.2.1)
 * Python (3.10)
 * fastp (0.23.4)
