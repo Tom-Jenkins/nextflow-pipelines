@@ -77,7 +77,7 @@ mamba activate organelle
 cpus=20
 reads=/path/to/reads/directory
 ref=/path/to/references/directory
-outdir=/path/to/reads/directory
+outdir=/path/to/output/directory
 
 # Index reference seed sequences
 bowtie2-build ${ref}/mitochondrion-seeds.fa ${ref}/mitochondrion-seeds.fa

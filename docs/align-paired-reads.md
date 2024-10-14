@@ -32,7 +32,7 @@ mamba activate align
 cpus=20
 reads=/path/to/reads/directory
 genome=/path/to/reference/filename.fasta
-outdir=/path/to/reads/directory
+outdir=/path/to/output/directory
 
 # Index genome
 # bowtie2-build ${genome} ${genome}

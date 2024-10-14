@@ -30,7 +30,7 @@ mamba activate kraken2
 cpus=20
 reads=/path/to/reads/directory
 krakenDB=/path/to/krakenDB/
-outdir=/path/to/reads/directory
+outdir=/path/to/output/directory
 
 # Run pipeline
 nextflow run ~/nextflow-pipelines/src/kraken2.nf \
