@@ -1,0 +1,9 @@
+name: variant
+dependencies:
+  - nextflow=24.04
+  - python=3.10
+  - bowtie2=2.5.3
+  - samtools=1.19.2
+  - gatk4=4.5
+  - bcftools=1.21
+  - freebayes=1.3.8
