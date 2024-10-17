@@ -1,17 +1,14 @@
 # Reference genome assembly
 The [`variantcalling.nf`](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/src/variantcalling.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format, map reads using Bowtie2, processed bam fildes, and finally call variants using BCFtools v1.21 and/or Freebayes v1.3.6. If part of the pipeline is unsuccessful for a sample then these errors are ignored.
+
 Pipeline flowchart:
+
 ```mermaid
 graph TD;
-    FASTQ-->|bowtie2| n1[Align Reads to Reference Genome];
-    n1-->|GATK4| n2[Process BAM Files];
-    n2-->|| n3[Create BAM List];
-    subgraph I 
-        c1-->|BCFtools| c2[Call Variants];
-    end
-    subgraph I 
-        c1-->|Freebayes| c2[Call Variants];
-    end
+    FASTQ-->|bowtie2| a1[Align Reads to Reference Genome];
+    a1-->|GATK4| p2[Process BAM Files];
+    p2-->|BCFtools| b1[Call Variants];
+    p2-->|Freebayes| f1[Call Variants];
 ```
 
 ## Dependencies (version tested)
