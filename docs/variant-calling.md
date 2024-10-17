@@ -15,6 +15,7 @@ graph TD;
 * Nextflow (24.04.4)
 * Java (18.0.2.1)
 * Python (3.10)
+* Perl (5.32.1)
 * bowtie2 (2.5.3)
 * SAMtools (1.19.2)
 * GATK4 (4.5)

@@ -2,6 +2,7 @@ name: variantcalling
 dependencies:
   - nextflow=24.04
   - python=3.10
+  - perl=5.32.1
   - bowtie2=2.5.3
   - samtools=1.19.2
   - gatk4=4.5
