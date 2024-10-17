@@ -72,3 +72,36 @@ nextflow run ~/nextflow-pipelines/src/variantcalling.nf \
     --vcf "variants" \
     --cpus 20
 ```
+
+| Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
+| :- | :-
+| `--sampleSheet` | sample sheet in CSV format
+| `--genome` | path to reference genome (index genome before running pipeline)
+| `--outdir` | path to output directory
+| `--variantCaller` | `"bcftools"`, `"freebayes"`, or `"both"`
+| `--bcftools_mpileup` | string of additional arguments passed to `bcftools mpileup` (e.g. "--min-MQ 40 --min-BQ 30")
+| `--bcftools_call` | string of additional arguments passed to `bcftools call` (e.g. "--ploidy 2 --multiallelic-caller --variants-only")
+| `--freebayes_params` | string of additional arguments passed to `freebayes` (e.g. "-p 2 --min-mapping-quality 40 --min-base-quality 30 --min-alternate-count 5 -g 200 --genotype-qualities")
+| `--vcf` | string denoting the output VCF prefix
+| `--test` | prints out a tuple of the sample ID and paths to the input paired reads (dry run)
+| `--cpus` | integer denoting the number of cpus (default: `16`)
+
+**Example input:**  
+```
+$ ls reads/
+SampleID_01_1.fq.gz SampleID_02_1.fq.gz
+SampleID_01_2.fq.gz SampleID_02_2.fq.gz
+```
+
+## Output
+
+The output of `organelle.nf` are two directories called `mitochondrial_genomes/` and `chloroplast_genomes/` that are automatically created in the `--outdir` path. In these directories are subdirectories for each sample which contain the assembly (assembly.fasta) and annotation (sampleID.cds.fasta) output files.
+
+**Example output:**
+```
+$ ls ${outdir}/mitochondrial_genomes
+SampleID_01 SampleID_02
+
+$ ls ${outdir}/chloroplast_genomes
+SampleID_01 SampleID_02
+```
