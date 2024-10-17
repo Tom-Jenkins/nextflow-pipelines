@@ -89,9 +89,8 @@ nextflow run ~/nextflow-pipelines/src/variantcalling.nf \
 ## Input
 
 ```
-$ ls reads/
-SampleID_01_1.fq.gz SampleID_02_1.fq.gz
-SampleID_01_2.fq.gz SampleID_02_2.fq.gz
+$ ls sample_sheet/
+sample_sheet.csv
 
 $ ls genome/
 GCA_040759855.1_ASM4075985v1_genomic.fna
