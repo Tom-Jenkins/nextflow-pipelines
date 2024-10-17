@@ -1,4 +1,4 @@
-# Organelle assembly and annotation
+# Organelle Assembly and Annotation
 
 The [`organelle.nf`](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/src/organelle.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format and output an annotated mitochondrial and chloroplast genome. If part of the pipeline is unsuccessful for a sample then these errors are ignored and no assembly or annotation files will be produced for that sample.
 

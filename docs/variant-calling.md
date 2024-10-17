@@ -1,4 +1,4 @@
-# Reference genome assembly
+# Variant Calling
 The [`variantcalling.nf`](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/src/variantcalling.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format, map reads using Bowtie2, processed bam fildes, and finally call variants using BCFtools v1.21 and/or Freebayes v1.3.6. If part of the pipeline is unsuccessful for a sample then these errors are ignored.
 
 Pipeline flowchart:
