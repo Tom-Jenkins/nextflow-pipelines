@@ -6,7 +6,11 @@ nextflow.enable.dsl=2
 params.sampleSheet = "${PWD}/sample_sheet.csv"
 params.genome = "${PWD}"
 params.outdir = "${PWD}"
-params.vcf = "bcftools_variants"
+params.variantCaller = "both" // "bcftools" and "freebayes" or "both"
+params.bcftools_mpileup = "--min-MQ 40 --min-BQ 30"
+params.bcftools_call = "--ploidy 2 --multiallelic-caller --variants-only"
+params.freebayes_params = "-p 2 --min-mapping-quality 40 --min-base-quality 30 --min-alternate-count 5 -g 200 --genotype-qualities"
+params.vcf = "variants"
 params.test = false
 params.cpus = 16
 
@@ -17,6 +21,10 @@ log.info """\
          Input reads sample sheet: ${params.sampleSheet}
          Input reference genome: ${params.genome}
          Output directory: ${params.outdir}
+         Variant caller (BCFtools or Freebayes): ${params.variantCaller}
+         BCFtools mpileup parameter(s): ${params.bcftools_mpileup}
+         BCFtools call parameter(s): ${params.bcftools_call}
+         Freebayes parameter(s): ${params.freebayes_params}
          VCF output prefix: ${params.vcf}
          Number of threads: ${params.cpus}
          """
@@ -51,9 +59,25 @@ workflow {
         // Align reads to reference genome
         bam_ch = ALIGN_TO_REF_GENOME(sample_ch)
 
-        // Process bam files and pipe the output to bcftools v1.19
-        bam_ch | PROCESS_BAM | collect | CALL_VARIANTS
-    }    
+        // Process BAM files
+        processed_bam = PROCESS_BAM(bam_ch)
+
+        // Process bam files and call variants using bcftools and freebayes
+        if ( params.variantCaller == "both" ) {
+            processed_bam | collect | CALL_VARIANTS_BCFTOOLS
+            processed_bam | collect | CALL_VARIANTS_FREEBAYES
+        }
+
+        // Process bam files and call variants using bcftools only
+        if ( params.variantCaller == "bcftools" ) {
+            processed_bam | collect | CALL_VARIANTS_BCFTOOLS
+        }
+
+        // Process bam files and call variants using freebayes only
+        if ( params.variantCaller == "freebayes" ) {
+            processed_bam | collect | CALL_VARIANTS_FREEBAYES
+        }       
+    }
 }
 
 
@@ -114,12 +138,11 @@ process PROCESS_BAM {
         O=${sample_id}-sorted-rg-md.bam \
         M=${sample_id}-metrics.txt
 
-    samtools index ${sample_id}-sorted-rg-md.bam
     rm ${sample_id}-sorted-rg.bam
     """
 }
 
-process CALL_VARIANTS {
+process CALL_VARIANTS_BCFTOOLS {
 
     // Directives
     cpus params.cpus
@@ -129,8 +152,8 @@ process CALL_VARIANTS {
     path(bam)
 
     output:
-    path("${params.vcf}.pileup")
-    path("${params.vcf}.vcf")
+    // path("${params.vcf}.pileup")
+    path("${params.vcf}_bcftools.vcf.gz")
 
     // Run bcftools mpileup
     // Run bcftools call
@@ -139,8 +162,7 @@ process CALL_VARIANTS {
     bcftools mpileup \
         --threads ${task.cpus} \
         --fasta-ref ${params.genome} \
-        --min-MQ 20 \
-        --min-BQ 30 \
+        ${params.bcftools_mpileup} \
         --annotate FORMAT/AD,FORMAT/DP,INFO/AD \
         --output ${params.vcf}.pileup \
         --output-type z \
@@ -148,11 +170,41 @@ process CALL_VARIANTS {
     
     bcftools call \
         --threads ${task.cpus} \
-        --multiallelic-caller \
-        --variants-only \
-        --ploidy 2 \
+        ${params.bcftools_call} \
         --output-type v \
-        --output ${params.vcf}.vcf \
+        --output ${params.vcf}_bcftools.vcf \
         ${params.vcf}.pileup
+    
+    gzip ${params.vcf}_bcftools.vcf
+    """
+}
+
+process CALL_VARIANTS_FREEBAYES {
+
+    // Directives
+    cpus params.cpus
+    publishDir "${params.outdir}", mode: "copy"
+
+    input:
+    path(bam)
+
+    output:
+    path("${params.vcf}_freebayes.vcf.gz")
+
+    script:
+    """
+    export TMPDIR=${params.outdir}
+
+    samtools faidx ${params.genome}
+
+    samtools index -M ${bam}
+
+    freebayes-parallel <(fasta_generate_regions.py ${params.genome}.fai 100000) ${task.cpus} \
+        --fasta-reference ${params.genome} \
+        --bam ${bam} \
+        ${params.freebayes_params} \
+        > ${params.vcf}_freebayes.vcf
+
+    gzip ${params.vcf}_freebayes.vcf
     """
 }
