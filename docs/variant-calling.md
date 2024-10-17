@@ -86,22 +86,27 @@ nextflow run ~/nextflow-pipelines/src/variantcalling.nf \
 | `--test` | prints out a tuple of the sample ID and paths to the input paired reads (dry run)
 | `--cpus` | integer denoting the number of cpus (default: `16`)
 
-**Example input:**  
+## Input
+
 ```
 $ ls reads/
 SampleID_01_1.fq.gz SampleID_02_1.fq.gz
 SampleID_01_2.fq.gz SampleID_02_2.fq.gz
+
+$ ls genome/
+GCA_040759855.1_ASM4075985v1_genomic.fna
+GCA_040759855.1_ASM4075985v1_genomic.fna.1.bt2
+GCA_040759855.1_ASM4075985v1_genomic.fna.2.bt2
+GCA_040759855.1_ASM4075985v1_genomic.fna.3.bt2
+GCA_040759855.1_ASM4075985v1_genomic.fna.4.bt2
+GCA_040759855.1_ASM4075985v1_genomic.fna.rev.1.bt2
+GCA_040759855.1_ASM4075985v1_genomic.fna.rev.2.bt2
 ```
 
 ## Output
 
-The output of `organelle.nf` are two directories called `mitochondrial_genomes/` and `chloroplast_genomes/` that are automatically created in the `--outdir` path. In these directories are subdirectories for each sample which contain the assembly (assembly.fasta) and annotation (sampleID.cds.fasta) output files.
-
-**Example output:**
 ```
-$ ls ${outdir}/mitochondrial_genomes
-SampleID_01 SampleID_02
-
-$ ls ${outdir}/chloroplast_genomes
-SampleID_01 SampleID_02
+$ ls ${outdir}
+variants_bcftools.vcf.gz
+variants_freebayes.vcf.gz
 ```
