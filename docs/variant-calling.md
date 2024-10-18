@@ -1,11 +1,11 @@
 # Variant Calling
-The [`variantcalling.nf`](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/src/variantcalling.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format, map reads using Bowtie2, processed bam fildes, and finally call variants using BCFtools v1.21 and/or Freebayes v1.3.6. If part of the pipeline is unsuccessful for a sample then these errors are ignored.
+The [`variantcalling.nf`](https://github.com/Tom-Jenkins/maerl-wgs-pipelines/blob/main/src/variantcalling.nf) nextflow script will take any number of samples with paired-end reads in FASTQ format, map reads using Bowtie2, processed BAM files, and finally call variants using BCFtools v1.21 and/or Freebayes v1.3.6. If part of the pipeline is unsuccessful for a sample then these errors are ignored.
 
 Pipeline flowchart:
 
 ```mermaid
 graph TD;
-    FASTQ-->|bowtie2| a1[Align Reads to Reference Genome];
+    FASTQ-->|Bowtie2| a1[Align Reads to Reference Genome];
     a1-->|GATK4| p2[Process BAM Files];
     p2-->|BCFtools| b1[Call Variants];
     p2-->|Freebayes| f1[Call Variants];
@@ -16,7 +16,7 @@ graph TD;
 * Java (18.0.2.1)
 * Python (3.10)
 * Perl (5.32.1)
-* bowtie2 (2.5.3)
+* Bowtie2 (2.5.3)
 * SAMtools (1.19.2)
 * GATK4 (4.5)
 * BCFtools (1.21)
