@@ -9,7 +9,7 @@ params.outdir = "${PWD}"
 params.variantCaller = "both" // "bcftools" and "freebayes" or "both"
 params.bcftools_mpileup = "--min-MQ 40 --min-BQ 30"
 params.bcftools_call = "--ploidy 2 --multiallelic-caller --variants-only"
-params.freebayes_params = "-p 2 --min-mapping-quality 40 --min-base-quality 30 --min-alternate-count 5 -g 200 --genotype-qualities"
+params.freebayes_params = "-p 2 --min-mapping-quality 40 --min-base-quality 30 -g 200 --genotype-qualities"
 params.vcf = "variants"
 params.test = false
 params.cpus = 16
@@ -60,22 +60,26 @@ workflow {
         bam_ch = ALIGN_TO_REF_GENOME(sample_ch)
 
         // Process BAM files
-        processed_bam = PROCESS_BAM(bam_ch)
+        processed_bam_ch = PROCESS_BAM(bam_ch)
+        
+        // Collect BAM files and output text file with one BAM per line
+        collected_bam_bcftools_ch = processed_bam_ch.collect()
+        collected_bam_freebayes_ch = processed_bam_ch.collect()
 
         // Process bam files and call variants using bcftools and freebayes
         if ( params.variantCaller == "both" ) {
-            processed_bam | collect | CALL_VARIANTS_BCFTOOLS
-            processed_bam | collect | CALL_VARIANTS_FREEBAYES
+            CALL_VARIANTS_BCFTOOLS(collected_bam_bcftools_ch)
+            CALL_VARIANTS_FREEBAYES(collected_bam_freebayes_ch)
         }
 
         // Process bam files and call variants using bcftools only
         if ( params.variantCaller == "bcftools" ) {
-            processed_bam | collect | CALL_VARIANTS_BCFTOOLS
+            CALL_VARIANTS_BCFTOOLS(collected_bam_bcftools_ch)
         }
 
         // Process bam files and call variants using freebayes only
         if ( params.variantCaller == "freebayes" ) {
-            processed_bam | collect | CALL_VARIANTS_FREEBAYES
+            CALL_VARIANTS_FREEBAYES(collected_bam_freebayes_ch)
         }       
     }
 }
@@ -146,6 +150,7 @@ process CALL_VARIANTS_BCFTOOLS {
 
     // Directives
     cpus params.cpus
+    errorStrategy "ignore"
     publishDir "${params.outdir}", mode: "copy"
 
     input:
@@ -159,6 +164,8 @@ process CALL_VARIANTS_BCFTOOLS {
     // Run bcftools call
     script:
     """
+    echo ${bam} | tr " " "\n" > bamlist.txt
+
     bcftools mpileup \
         --threads ${task.cpus} \
         --fasta-ref ${params.genome} \
@@ -166,7 +173,7 @@ process CALL_VARIANTS_BCFTOOLS {
         --annotate FORMAT/AD,FORMAT/DP,INFO/AD \
         --output ${params.vcf}.pileup \
         --output-type z \
-        ${bam}
+        --bam-list bamlist.txt
     
     bcftools call \
         --threads ${task.cpus} \
@@ -183,6 +190,7 @@ process CALL_VARIANTS_FREEBAYES {
 
     // Directives
     cpus params.cpus
+    errorStrategy "ignore"
     publishDir "${params.outdir}", mode: "copy"
 
     input:
@@ -193,15 +201,17 @@ process CALL_VARIANTS_FREEBAYES {
 
     script:
     """
+    echo ${bam} | tr " " "\n" > bamlist.txt
+
     export TMPDIR=${params.outdir}
 
     samtools faidx ${params.genome}
 
-    samtools index -M ${bam}
+    samtools index -M *bam
 
     freebayes-parallel <(fasta_generate_regions.py ${params.genome}.fai 100000) ${task.cpus} \
         --fasta-reference ${params.genome} \
-        --bam ${bam} \
+        --bam-list bamlist.txt \
         ${params.freebayes_params} \
         > ${params.vcf}_freebayes.vcf
 
