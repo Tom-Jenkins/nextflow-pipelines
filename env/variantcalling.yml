@@ -5,6 +5,6 @@ dependencies:
   - perl=5.32.1
   - bowtie2=2.5.3
   - samtools=1.19.2
-  - gatk4=4.5
+  - gatk4=4.4.0.0
   - bcftools=1.21
-  - freebayes=1.3.6
+  - freebayes=1.3.8
