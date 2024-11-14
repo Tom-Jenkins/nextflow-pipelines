@@ -7,7 +7,7 @@ def process_kraken2_outputs(input_files, output_csv):
     csv_data = []
 
     # Define the rank codes we are interested in
-    ranks_of_interest = {'U', 'R', 'D', 'P'}
+    ranks_of_interest = {'U', 'R', 'D', 'P', 'C', 'O', 'F', 'G', 'S'}
 
     for input_file in input_files:
         # Extract the prefix of the input file name
