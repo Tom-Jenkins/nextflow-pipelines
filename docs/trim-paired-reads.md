@@ -26,7 +26,7 @@ conda activate fastp
 # Variables
 cpus=16
 reads=/path/to/reads/directory
-adapters=./nextflow-pipelines/misc/adapters.fasta
+adapters=~/nextflow-pipelines/misc/adapters.fasta
 outdir=/path/to/output/directory
 
 # Run pipeline
