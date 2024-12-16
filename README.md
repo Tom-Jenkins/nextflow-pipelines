@@ -36,3 +36,4 @@ If you are manually installing software, nextflow can be installed by following 
 - [Variant Calling](./docs/variant-calling.md)
 
 ### In Development
+- Quantify expression using Salmon
