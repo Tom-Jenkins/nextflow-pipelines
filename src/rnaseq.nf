@@ -3,15 +3,13 @@
 // Parameters
 params.reads = "${PWD}"
 params.suffix = "_{1,2}.fastq.gz"
-params.reference = "${PWD}"
-params.annotation = "${PWD}"
-params.outdir = "${PWD}"
 params.salmon = false
+params.transcriptome = "${PWD}"
 params.salmonParams = "--libType A --gcBias --seqBias"
 params.star = false
+params.starIndex = "${PWD}"
 params.starParams = ""
-params.featureCounts = false
-params.featureCountsParams = ""
+params.outdir = "${PWD}"
 params.test = false
 params.cpus = 16
 
@@ -21,7 +19,8 @@ log.info """\
          ===================================
          Input reads directory: ${params.reads}
          Input reads suffix: ${params.suffix}
-         Reference FASTA: ${params.reference}
+         Transcriptome FASTA: ${params.transcriptome}
+         STAR index directory: ${params.starIndex}
          Annotation GTF: ${params.annotation}
          Output directory: ${params.outdir}
          Number of threads: ${params.cpus}
@@ -49,18 +48,15 @@ workflow {
         // STAR
         if (params.star) {
 
-            // Index reference
-            star_index = STAR_INDEX(params.reference, params.annotation)
-
             // Align reads
-            // STAR_ALIGN(star_index, reads_ch)
+            STAR_ALIGN(reads_ch)
         }
 
         // Salmon
         if (params.salmon) {
 
             // Index reference
-            salmon_index = SALMON_INDEX(params.reference)
+            salmon_index = SALMON_INDEX(params.transcriptome)
 
             // Quantify expression
             SALMON_QUANT(salmon_index, reads_ch)
@@ -69,26 +65,32 @@ workflow {
 }
 
 
-// Index reference for STAR
-process STAR_INDEX {
+// Align reads using STAR
+process STAR_ALIGN {
 
     // Directives
     maxForks 1 // set maximum number of parallel tasks to 1
+    publishDir "${params.outdir}/STAR_output", mode: "copy"
 
     input:
-    path(reference)
-    path(annotation)
+    tuple val(sample_id), path(reads)
 
     output:
-    path("index")
+    path("${sample_id}.bam")
+    path("${sample_id}.counts"), optional: true
 
     script:
     """
     STAR \
-        --runMode genomeGenerate \
-        --genomeFastaFiles ${reference} \
-        --sjdbGTFfile ${annotation} \
+        --runMode alignReads \
+        --genomeDir ${params.starIndex} \
+        ${params.starParams} \
+        --readFilesIn ${reads[0]} ${reads[1]} \
+        --outFileNamePrefix ${sample_id}_ \
         --runThreadN ${params.cpus}
+    
+    mv ${sample_id}_Aligned.sortedByCoord.out.bam ${sample_id}.bam
+    mv ${sample_id}_ReadsPerGene.out.tab ${sample_id}.counts     
     """
 }
 
@@ -99,7 +101,7 @@ process SALMON_INDEX {
     maxForks 1 // set maximum number of parallel tasks to 1
 
     input:
-    path(reference)
+    path(transcriptome)
 
     output:
     path("index")
@@ -107,7 +109,7 @@ process SALMON_INDEX {
     script:
     """
     salmon index \
-        -t ${reference} \
+        -t ${transcriptome} \
         -i index \
         --threads ${params.cpus}
     """
