@@ -21,7 +21,6 @@ log.info """\
          Input reads suffix: ${params.suffix}
          Transcriptome FASTA: ${params.transcriptome}
          STAR index directory: ${params.starIndex}
-         Annotation GTF: ${params.annotation}
          Output directory: ${params.outdir}
          Number of threads: ${params.cpus}
          Script version: v0.1
