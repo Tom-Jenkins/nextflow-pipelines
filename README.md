@@ -33,7 +33,7 @@ If you are manually installing software, nextflow can be installed by following 
 - [Align paired-end reads to reference](./docs/align-paired-reads.md)
 - [Organelle assembly and annotation](./docs/organelle-assembly-annotation.md)
 - [Classify paired-end reads using Kraken2](./docs/kraken2-paired-reads.md)
-- [Variant Calling](./docs/variant-calling.md)
+- [Variant calling](./docs/variant-calling.md)
 
 ### In Development
 - Quantify expression using Salmon

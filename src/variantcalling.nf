@@ -22,9 +22,9 @@ log.info """\
          Input reference genome: ${params.genome}
          Output directory: ${params.outdir}
          Variant caller (BCFtools or Freebayes): ${params.variantCaller}
-         BCFtools mpileup parameter(s): ${params.bcftools_mpileup}
-         BCFtools call parameter(s): ${params.bcftools_call}
-         Freebayes parameter(s): ${params.freebayes_params}
+         BCFtools mpileup parameter(s): ${params.variantCaller == "bcftools" || params.variantCaller == "both" ? params.bcftools_mpileup : "n/a"}
+         BCFtools call parameter(s): ${params.variantCaller == "bcftools"  || params.variantCaller == "both" ? params.bcftools_call : "n/a"}
+         Freebayes parameter(s): ${params.variantCaller == "freebayes"  || params.variantCaller == "both" ? params.freebayes_params : "n/a"}
          VCF output prefix: ${params.vcf}
          Number of threads: ${params.cpus}
          """
@@ -88,7 +88,6 @@ workflow {
 process ALIGN_TO_REF_GENOME {
 
     // Directives
-    cpus params.cpus
     errorStrategy "ignore"
 
     input:
@@ -96,23 +95,21 @@ process ALIGN_TO_REF_GENOME {
 
     // [sample_ID, [sample_ID.bam]]
     output:
-    tuple val(sample_id), val(library), val(run), path("${sample_id}.sorted.bam"), optional: true
+    tuple val(sample_id), val(library), val(run), path("${sample_id}.bam"), optional: true
 
     // Align reads using bowtie2
-    // Filter out unmapped reads, convert to bam, and sort bam
+    // Filter out unmapped reads and convert to bam
     script:
     """
-    bowtie2 -p ${task.cpus} -x ${params.genome} -1 ${reads[0]} -2 ${reads[1]} -S ${sample_id}.sam
-    samtools view -F 4 --threads ${task.cpus} -b ${sample_id}.sam > ${sample_id}.bam
-    samtools sort --threads ${task.cpus} ${sample_id}.bam > ${sample_id}.sorted.bam
-    rm ${sample_id}.sam ${sample_id}.bam
+    bowtie2 -p ${params.cpus} -x ${params.genome} -1 ${reads[0]} -2 ${reads[1]} -S ${sample_id}.sam
+    samtools view -F 4 -@ ${params.cpus} -b ${sample_id}.sam > ${sample_id}.bam
+    rm ${sample_id}.sam
     """
 }
 
 process PROCESS_BAM {
 
     // Directives
-    cpus params.cpus
     errorStrategy "ignore"
     publishDir "${params.outdir}/processed_bams", mode: "copy"
 
@@ -121,35 +118,34 @@ process PROCESS_BAM {
     tuple val(sample_id), val(library), val(run), path(bam)
 
     output:
-    path("${sample_id}-sorted-rg-md.bam")
+    path("${sample_id}.rg.md.bam"), optional: true
 
     // Add read groups
     // Mark duplicates
-    // Index bam
     script:
     """
-    gatk AddOrReplaceReadGroups \
-        I=${bam} \
-        O=${sample_id}-sorted-rg.bam \
-        RGID=${sample_id} \
-        RGLB=${library} \
-        RGPL=ILLUMINA \
-        RGPU=${run} \
-        RGSM=${sample_id}
+    echo Sorting BAM by name ...
+    samtools sort -@ ${params.cpus} -n -m 4G ${bam} > ${sample_id}.sorted.temp
 
-    gatk MarkDuplicates \
-        I=${sample_id}-sorted-rg.bam \
-        O=${sample_id}-sorted-rg-md.bam \
-        M=${sample_id}-metrics.txt
+    echo Adding read groups ...
+    samtools addreplacerg -@ ${params.cpus} -r "@RG\\tID:${sample_id}\\tPL:ILLUMINA\\tLB:${library}\\tPU:${run}\\tSM:${sample_id}" ${sample_id}.sorted.temp > ${sample_id}.rg.bam
+    
+    echo Adding ms and MC tags for markdup ...
+    samtools fixmate -@ ${params.cpus} -m ${sample_id}.rg.bam ${sample_id}.rg.temp
 
-    rm ${sample_id}-sorted-rg.bam
+    echo Sorting BAM by coordinate ...
+    samtools sort -@ ${params.cpus} ${sample_id}.rg.temp > ${sample_id}.rg.sorted.temp
+
+    echo Marking duplicates ...
+    samtools markdup -@ ${params.cpus} ${sample_id}.rg.sorted.temp ${sample_id}.rg.md.bam
+    
+    rm ${sample_id}.sorted.temp ${sample_id}.rg.bam ${sample_id}.rg.temp ${sample_id}.rg.sorted.temp    
     """
 }
 
 process CALL_VARIANTS_BCFTOOLS {
 
     // Directives
-    cpus params.cpus
     errorStrategy "ignore"
     publishDir "${params.outdir}", mode: "copy"
 
@@ -167,7 +163,7 @@ process CALL_VARIANTS_BCFTOOLS {
     echo ${bam} | tr " " "\n" > bamlist.txt
 
     bcftools mpileup \
-        --threads ${task.cpus} \
+        --threads ${params.cpus} \
         --fasta-ref ${params.genome} \
         ${params.bcftools_mpileup} \
         --annotate FORMAT/AD,FORMAT/DP,INFO/AD \
@@ -176,7 +172,7 @@ process CALL_VARIANTS_BCFTOOLS {
         --bam-list bamlist.txt
     
     bcftools call \
-        --threads ${task.cpus} \
+        --threads ${params.cpus} \
         ${params.bcftools_call} \
         --output-type v \
         --output ${params.vcf}_bcftools.vcf \
@@ -189,7 +185,6 @@ process CALL_VARIANTS_BCFTOOLS {
 process CALL_VARIANTS_FREEBAYES {
 
     // Directives
-    cpus params.cpus
     errorStrategy "ignore"
     publishDir "${params.outdir}", mode: "copy"
 
@@ -207,9 +202,9 @@ process CALL_VARIANTS_FREEBAYES {
 
     samtools faidx ${params.genome}
 
-    samtools index -M *bam
+    samtools index -M *.bam
 
-    freebayes-parallel <(fasta_generate_regions.py ${params.genome}.fai 100000) ${task.cpus} \
+    freebayes-parallel <(fasta_generate_regions.py ${params.genome}.fai 100000) ${params.cpus} \
         --fasta-reference ${params.genome} \
         --bam-list bamlist.txt \
         ${params.freebayes_params} \
