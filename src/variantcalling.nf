@@ -88,6 +88,7 @@ workflow {
 process ALIGN_TO_REF_GENOME {
 
     // Directives
+    maxForks 1 // set maximum number of parallel tasks to 1
     errorStrategy "ignore"
 
     input:
@@ -110,6 +111,7 @@ process ALIGN_TO_REF_GENOME {
 process PROCESS_BAM {
 
     // Directives
+    maxForks 1 // set maximum number of parallel tasks to 1
     errorStrategy "ignore"
     publishDir "${params.outdir}/processed_bams", mode: "copy"
 
