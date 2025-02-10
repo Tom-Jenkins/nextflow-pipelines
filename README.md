@@ -29,11 +29,11 @@ If you are manually installing software, nextflow can be installed by following 
 ## Documentation
 
 ### Nextflow Pipeline
-- [Trim paired-end reads](./docs/trim-paired-reads.md)
+- [Trim paired-end reads using Fastp](./docs/trim-paired-reads.md)
 - [Align paired-end reads to reference](./docs/align-paired-reads.md)
 - [Organelle assembly and annotation](./docs/organelle-assembly-annotation.md)
 - [Classify paired-end reads using Kraken2](./docs/kraken2-paired-reads.md)
 - [Variant calling](./docs/variant-calling.md)
+- [Quantify expression using Salmon or Kallisto](./docs/quantify-expression.md)
 
 ### In Development
-- Quantify expression using Salmon
