@@ -42,7 +42,7 @@ nextflow run ~/nextflow-pipelines/src/quantifyexpression.nf \
     --cpus ${cpus}
 ```
 
-| Parameters&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
+| Parameters&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
 | :--- | :---
 | `--reads` | path to input directory containing FASTQ files
 | `--suffix` | string denoting the suffix after a sample name and the forward (read1) and reverse (read2) designation (e.g. for read pair `sampleID_1.fq.gz` and `sampleID_2.fq.gz` set the parameter to `--suffix "_{1,2}.fq.gz"`. The name of this output directory will be called `sampleID`) 
