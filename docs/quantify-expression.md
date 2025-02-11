@@ -40,6 +40,10 @@ nextflow run ~/nextflow-pipelines/src/quantifyexpression.nf \
     --kallisto \
     --outdir ${outdir} \
     --cpus ${cpus}
+
+# Merge quantification files
+python ~/nextflow-pipelines/misc/merge_quant_files.py --salmon salmon_output/ salmon_quant_results.csv
+python ~/nextflow-pipelines/misc/merge_quant_files.py --kallisto kallisto_output/ kallisto_quant_results.csv
 ```
 
 | Parameters&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
