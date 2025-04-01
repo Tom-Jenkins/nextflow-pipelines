@@ -65,7 +65,7 @@ workflow {
         processed_bam_ch = PROCESS_BAM(bam_ch)
 
         // Variant calling if alignOnly is false
-        if ( params.alignOnly ) {
+        if ( params.alignOnly == false ) {
             // Collect BAM files and output text file with one BAM per line
             collected_bam_bcftools_ch = processed_bam_ch.collect()
             collected_bam_freebayes_ch = processed_bam_ch.collect()
