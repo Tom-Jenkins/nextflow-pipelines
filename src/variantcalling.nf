@@ -6,6 +6,7 @@ nextflow.enable.dsl=2
 params.sampleSheet = "${PWD}/sample_sheet.csv"
 params.genome = "${PWD}"
 params.outdir = "${PWD}"
+params.alignOnly = false
 params.variantCaller = "both" // "bcftools" and "freebayes" or "both"
 params.bcftools_mpileup = "--min-MQ 40 --min-BQ 30"
 params.bcftools_call = "--ploidy 2 --multiallelic-caller --variants-only"
@@ -21,6 +22,7 @@ log.info """\
          Input reads sample sheet: ${params.sampleSheet}
          Input reference genome: ${params.genome}
          Output directory: ${params.outdir}
+         Alignments only: ${params.alignOnly}
          Variant caller (BCFtools or Freebayes): ${params.variantCaller}
          BCFtools mpileup parameter(s): ${params.variantCaller == "bcftools" || params.variantCaller == "both" ? params.bcftools_mpileup : "n/a"}
          BCFtools call parameter(s): ${params.variantCaller == "bcftools"  || params.variantCaller == "both" ? params.bcftools_call : "n/a"}
@@ -61,26 +63,29 @@ workflow {
 
         // Process BAM files
         processed_bam_ch = PROCESS_BAM(bam_ch)
-        
-        // Collect BAM files and output text file with one BAM per line
-        collected_bam_bcftools_ch = processed_bam_ch.collect()
-        collected_bam_freebayes_ch = processed_bam_ch.collect()
 
-        // Process bam files and call variants using bcftools and freebayes
-        if ( params.variantCaller == "both" ) {
-            CALL_VARIANTS_BCFTOOLS(collected_bam_bcftools_ch)
-            CALL_VARIANTS_FREEBAYES(collected_bam_freebayes_ch)
-        }
+        // Variant calling if alignOnly is false
+        if ( params.alignOnly ) {
+            // Collect BAM files and output text file with one BAM per line
+            collected_bam_bcftools_ch = processed_bam_ch.collect()
+            collected_bam_freebayes_ch = processed_bam_ch.collect()
 
-        // Process bam files and call variants using bcftools only
-        if ( params.variantCaller == "bcftools" ) {
-            CALL_VARIANTS_BCFTOOLS(collected_bam_bcftools_ch)
-        }
+            // Process bam files and call variants using bcftools and freebayes
+            if ( params.variantCaller == "both" ) {
+                CALL_VARIANTS_BCFTOOLS(collected_bam_bcftools_ch)
+                CALL_VARIANTS_FREEBAYES(collected_bam_freebayes_ch)
+            }
 
-        // Process bam files and call variants using freebayes only
-        if ( params.variantCaller == "freebayes" ) {
-            CALL_VARIANTS_FREEBAYES(collected_bam_freebayes_ch)
-        }       
+            // Process bam files and call variants using bcftools only
+            if ( params.variantCaller == "bcftools" ) {
+                CALL_VARIANTS_BCFTOOLS(collected_bam_bcftools_ch)
+            }
+
+            // Process bam files and call variants using freebayes only
+            if ( params.variantCaller == "freebayes" ) {
+                CALL_VARIANTS_FREEBAYES(collected_bam_freebayes_ch)
+            }
+        }               
     }
 }
 
