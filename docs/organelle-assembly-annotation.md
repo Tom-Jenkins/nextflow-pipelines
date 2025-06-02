@@ -31,7 +31,7 @@ graph TD;
 ## Conda Environment
 
 Create environment using conda:   
-`conda env create -f ./nextflow-pipelines/env/organelle.yml`  
+`conda env create -f ~/nextflow-pipelines/env/organelle.yml`  
 
 Activate conda environment:  
 `conda activate organelle` or `source activate organelle`
